@@ -1,0 +1,995 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}
+Correspondencia Entrada
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-header">
+
+    <div>
+        <h1>Correspondencia de Entrada</h1>
+        <p>Registro institucional de documentos recibidos</p>
+    </div>
+
+    <a
+        href="{{ url_for('dashboard.entrada_archivados') }}"
+        class="btn btn-dark rounded-pill px-4">
+
+        <i class="bi bi-archive-fill"></i>
+        Archivados
+
+    </a>
+
+    <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#modalNuevaEntrada">
+        <i class="bi bi-plus-circle-fill"></i>
+        Nueva Correspondencia
+    </button>
+
+</div>
+
+<div class="table-container">
+
+    <div class="table-header">
+
+        <h4>Documentos Registrados</h4>
+
+        <div class="d-flex gap-2">
+
+            <button class="btn btn-light">
+                <i class="bi bi-file-earmark-pdf-fill"></i>
+            </button>
+
+            <button class="btn btn-light">
+                <i class="bi bi-file-earmark-excel-fill"></i>
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="table-responsive" style="overflow-x:auto;">
+
+        <table class="table table-hover align-middle table-bordered">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Hoja Ruta</th>
+                    <th>CITE</th>
+                    <th>Fecha Doc.</th>
+                    <th>Remitente</th>
+                    <th>Institución</th>
+                    <th>Referencia</th>
+                    <th>Detalle</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Área</th>
+                    <th>Fecha Límite</th>
+                    <th>Urgente</th>
+                    <th>Respuesta</th>
+                    <th>Archivo</th>
+                    <th>Observaciones</th>
+                    <th>Fecha Registro</th>
+                    <th>Acciones</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for c in correspondencias %}
+
+                <tr>
+
+                    <td>{{ c.id }}</td>
+
+                    <td>
+                        <span class="badge bg-primary">
+                            {{ c.hoja_ruta }}
+                        </span>
+                    </td>
+
+                    <td>{{ c.cite or '-' }}</td>
+
+                    <td>
+                        {{ c.fecha_documento.strftime('%d/%m/%Y') if c.fecha_documento else '-' }}
+                    </td>
+
+                    <td>{{ c.remitente }}</td>
+
+                    <td>{{ c.institucion_remitente or '-' }}</td>
+
+                    <td>
+                        <div style="min-width:250px;">
+                            {{ c.referencia }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <div style="min-width:250px;">
+                            {{ c.detalle or '-' }}
+                        </div>
+                    </td>
+
+                    <td>
+
+                        {% if c.prioridad == 'ALTA' %}
+                            <span class="badge bg-danger">ALTA</span>
+
+                        {% elif c.prioridad == 'MEDIA' %}
+                            <span class="badge bg-warning text-dark">MEDIA</span>
+
+                        {% elif c.prioridad == 'URGENTE' %}
+                            <span class="badge bg-dark">URGENTE</span>
+
+                        {% else %}
+                            <span class="badge bg-success">BAJA</span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if c.estado == 'RECIBIDO' %}
+
+                            <span class="badge bg-info text-dark">
+                                {{ c.estado }}
+                            </span>
+
+                        {% elif c.estado == 'ASIGNADO' %}
+
+                            <span class="badge bg-primary">
+                                {{ c.estado }}
+                            </span>
+
+                        {% elif c.estado == 'EN PROCESO' %}
+
+                            <span class="badge bg-warning text-dark">
+                                {{ c.estado }}
+                            </span>
+
+                        {% elif c.estado == 'FINALIZADO' %}
+
+                            <span class="badge bg-success">
+                                {{ c.estado }}
+                            </span>
+
+                        {% elif c.estado == 'ARCHIVADO' %}
+
+                            <span class="badge bg-dark">
+                                ARCHIVADO
+                            </span>
+
+                        {% elif c.estado == 'ANULADO' %}
+
+                            <span class="badge bg-danger">
+                                ANULADO
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge bg-secondary">
+                                {{ c.estado }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>{{ c.area_destino or '-' }}</td>
+
+                    <td>
+                        {{ c.fecha_limite.strftime('%d/%m/%Y') if c.fecha_limite else '-' }}
+                    </td>
+
+                    <td>
+
+                        {% if c.urgente %}
+                            <span class="badge bg-danger">
+                                SI
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                NO
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if c.requiere_respuesta %}
+                            <span class="badge bg-warning text-dark">
+                                SI
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                NO
+                            </span>
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if c.archivo %}
+
+                            <a href="{{ url_for('static', filename='uploads/' + c.archivo) }}"
+                                target="_blank"
+                                class="btn btn-sm btn-outline-primary">
+
+                                <i class="bi bi-file-earmark"></i>
+
+                            </a>
+
+                        {% else %}
+
+                            <span class="text-muted">-</span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <div style="min-width:220px;">
+                            {{ c.observaciones or '-' }}
+                        </div>
+
+                    </td>
+
+                    <td>
+                        {{ c.fecha_registro.strftime('%d/%m/%Y %H:%M') if c.fecha_registro else '-' }}
+                    </td>
+
+                    <td>
+
+                        <div class="action-buttons">
+
+                            <button
+                                class="btn btn-info btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#verModal{{ c.id }}">
+
+                                <i class="bi bi-eye-fill"></i>
+
+                            </button>
+
+                            <button
+                                class="btn btn-warning btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editarModal{{ c.id }}">
+
+                                <i class="bi bi-pencil-fill"></i>
+
+                            </button>
+
+                            <form
+                                action="{{ url_for('dashboard.eliminar_entrada', id=c.id) }}"
+                                method="POST"
+                                onsubmit="return confirm('¿Archivar correspondencia?')">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-danger btn-sm">
+
+                                    <i class="bi bi-trash-fill"></i>
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% for c in correspondencias %}
+
+<div class="modal fade" id="verModal{{ c.id }}" tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+
+        <div class="modal-content border-0 shadow-lg rounded-4">
+
+            <div class="modal-header bg-primary text-white">
+
+                <h5 class="modal-title">
+                    <i class="bi bi-eye-fill"></i>
+                    Detalle Correspondencia
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div class="row g-4">
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Hoja Ruta</label>
+                        <div>{{ c.hoja_ruta }}</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">CITE</label>
+                        <div>{{ c.cite }}</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Fecha Documento</label>
+                        <div>
+                            {{ c.fecha_documento.strftime('%d/%m/%Y') if c.fecha_documento else '-' }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="fw-bold">Remitente</label>
+                        <div>{{ c.remitente }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="fw-bold">Institución</label>
+                        <div>{{ c.institucion_remitente }}</div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="fw-bold">Referencia</label>
+                        <div>{{ c.referencia }}</div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="fw-bold">Detalle</label>
+                        <div>{{ c.detalle }}</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Prioridad</label>
+                        <div>{{ c.prioridad }}</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Estado</label>
+                        <div>{{ c.estado }}</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Área</label>
+                        <div>{{ c.area_destino }}</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Fecha Límite</label>
+                        <div>
+                            {{ c.fecha_limite.strftime('%d/%m/%Y') if c.fecha_limite else '-' }}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Urgente</label>
+                        <div>
+                            {% if c.urgente %}
+                                SI
+                            {% else %}
+                                NO
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="fw-bold">Requiere Respuesta</label>
+                        <div>
+                            {% if c.requiere_respuesta %}
+                                SI
+                            {% else %}
+                                NO
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="fw-bold">Observaciones</label>
+                        <div>{{ c.observaciones }}</div>
+                    </div>
+
+                    <div class="col-md-12">
+
+                        <label class="fw-bold">Archivo</label>
+
+                        <div>
+
+                            {% if c.archivo %}
+
+                                <a href="{{ url_for('static', filename='uploads/' + c.archivo) }}"
+                                   target="_blank"
+                                   class="btn btn-primary">
+
+                                    <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                                    Ver Archivo
+
+                                </a>
+
+                            {% else %}
+
+                                Sin archivo
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal fade" id="editarModal{{ c.id }}" tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+
+        <div class="modal-content border-0 shadow-lg rounded-4">
+
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+                action="{{ url_for('dashboard.editar_entrada', id=c.id) }}">
+
+                <div class="modal-header bg-warning">
+
+                    <h5 class="modal-title">
+                        <i class="bi bi-pencil-fill"></i>
+                        Editar Correspondencia
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">Hoja Ruta</label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="hoja_ruta"
+                                value="{{ c.hoja_ruta }}">
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">CITE</label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="cite"
+                                value="{{ c.cite }}">
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">Fecha Documento</label>
+
+                            <input
+                                type="date"
+                                class="form-control"
+                                name="fecha_documento"
+                                value="{{ c.fecha_documento }}">
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">Fecha Límite</label>
+
+                            <input
+                                type="date"
+                                class="form-control"
+                                name="fecha_limite"
+                                value="{{ c.fecha_limite }}">
+
+                        </div>
+
+                        <div class="col-md-12">
+
+                            <label class="form-label">Remitente</label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="remitente"
+                                value="{{ c.remitente }}">
+
+                        </div>
+
+                        <div class="col-md-12">
+
+                            <label class="form-label">Institución</label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="institucion_remitente"
+                                value="{{ c.institucion_remitente }}">
+
+                        </div>
+
+                        <div class="col-md-12">
+
+                            <label class="form-label">Referencia</label>
+
+                            <textarea
+                                class="form-control"
+                                name="referencia">{{ c.referencia }}</textarea>
+
+                        </div>
+
+                        <div class="col-md-12">
+
+                            <label class="form-label">Detalle</label>
+
+                            <textarea
+                                class="form-control"
+                                name="detalle">{{ c.detalle }}</textarea>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">Observaciones</label>
+
+                            <textarea
+                                class="form-control"
+                                name="observaciones">{{ c.observaciones }}</textarea>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">Archivo</label>
+
+                            <input
+                                type="file"
+                                class="form-control"
+                                name="archivo_adjunto">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Cancelar
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-warning">
+
+                        <i class="bi bi-save-fill"></i>
+                        Guardar Cambios
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+<div class="modal fade" id="modalNuevaEntrada" tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h4 class="modal-title">
+                        Nueva Correspondencia
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        Registro de documentos institucionales
+                    </p>
+
+                </div>
+
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form
+                    action="{{ url_for('dashboard.guardar_entrada') }}"
+                    method="POST"
+                    enctype="multipart/form-data">
+
+                    <div class="row">
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Hoja de Ruta
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="hoja_ruta"
+                                    class="form-control-custom"
+                                    placeholder="HR-2026-001">
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    CITE
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control-custom"
+                                    name="cite"
+                                    placeholder="CITE-001">
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Fecha Documento
+                                </label>
+
+                                <input
+                                    type="date"
+                                    class="form-control-custom"
+                                    name="fecha_documento">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-lg-6">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Remitente
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="remitente"
+                                    class="form-control-custom"
+                                    placeholder="Nombre remitente">
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-6">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Institución Remitente
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="institucion_remitente"
+                                    class="form-control-custom"
+                                    placeholder="Institución">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-lg-12">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Referencia
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="referencia"
+                                    class="form-control-custom"
+                                    placeholder="Referencia del documento">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-lg-12">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Detalle
+                                </label>
+
+                                <textarea
+                                    class="form-control-custom"
+                                    name="detalle"
+                                    placeholder="Detalle institucional"></textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Prioridad
+                                </label>
+
+                                <select class="form-control-custom" name="prioridad">
+
+                                    <option>BAJA</option>
+                                    <option>MEDIA</option>
+                                    <option>ALTA</option>
+                                    <option>URGENTE</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Estado
+                                </label>
+
+                                <select class="form-control-custom" name="estado">
+
+                                    <option>RECIBIDO</option>
+                                    <option>ASIGNADO</option>
+                                    <option>EN PROCESO</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Área Destino
+                                </label>
+
+                                <select class="form-control-custom" name="area_destino">
+
+                                    <option>Gerencia</option>
+                                    <option>Legal</option>
+                                    <option>Administración</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-lg-6">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Fecha Límite
+                                </label>
+
+                                <input
+                                    type="date"
+                                    class="form-control-custom"
+                                    name="fecha_limite">
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-6">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Adjuntar Archivo
+                                </label>
+
+                                <input
+                                    type="file"
+                                    class="form-control-custom"
+                                    name="archivo_adjunto">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-3">
+
+                        <div class="col-lg-6">
+
+                            <div class="form-check">
+
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="documento_urgente">
+
+                                <label class="form-check-label">
+                                    Documento urgente
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-6">
+
+                            <div class="form-check">
+
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="requiere_respuesta">
+
+                                <label class="form-check-label">
+                                    Requiere respuesta
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-4">
+
+                        <div class="col-lg-12">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Observaciones
+                                </label>
+
+                                <textarea
+                                    class="form-control-custom"
+                                    name="observaciones"
+                                    placeholder="Observaciones internas"></textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer mt-4">
+
+                        <button
+                            type="button"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal">
+
+                            Cancelar
+
+                        </button>
+
+                        <button class="btn-primary-custom" type="submit">
+
+                            <i class="bi bi-save-fill"></i>
+                            Guardar Correspondencia
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

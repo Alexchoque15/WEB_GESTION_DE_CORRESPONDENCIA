@@ -1,0 +1,141 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}
+Correspondencia Archivada
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-header">
+
+    <div>
+
+        <h1>Correspondencia Archivada</h1>
+
+        <p>
+            Historial institucional de documentos archivados
+        </p>
+
+    </div>
+
+    <a
+        href="{{ url_for('dashboard.entrada') }}"
+        class="btn btn-primary rounded-pill px-4">
+
+        <i class="bi bi-arrow-left"></i>
+        Volver
+
+    </a>
+
+</div>
+
+<div class="table-container">
+
+    <div class="table-responsive">
+
+        <table class="table table-hover align-middle">
+
+            <thead class="table-dark">
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Hoja Ruta</th>
+                    <th>Remitente</th>
+                    <th>Referencia</th>
+                    <th>Estado</th>
+                    <th>Fecha Registro</th>
+                    <th>Acciones</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for c in correspondencias %}
+
+                <tr>
+
+                    <td>{{ c.id }}</td>
+
+                    <td>
+
+                        <span class="badge bg-dark">
+                            {{ c.hoja_ruta }}
+                        </span>
+
+                    </td>
+
+                    <td>{{ c.remitente }}</td>
+
+                    <td>{{ c.referencia }}</td>
+
+                    <td>
+
+                        <span class="badge bg-secondary">
+                            {{ c.estado }}
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {{ c.fecha_registro.strftime('%d/%m/%Y %H:%M') }}
+
+                    </td>
+
+                    <td>
+
+                        <div class="d-flex gap-2">
+
+                            <!-- RESTAURAR -->
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('dashboard.restaurar_entrada', id=c.id) }}">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-success btn-sm rounded-pill px-3">
+
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+
+                                </button>
+
+                            </form>
+
+                            <!-- ELIMINAR DEFINITIVO -->
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('dashboard.eliminar_definitivo_entrada', id=c.id) }}"
+                                onsubmit="return confirm('¿Eliminar definitivamente?')">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-danger btn-sm rounded-pill px-3">
+
+                                    <i class="bi bi-trash-fill"></i>
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

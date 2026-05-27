@@ -1,0 +1,659 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}
+Dashboard Ejecutivo
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-hero">
+
+    <div>
+
+        <h1>Dashboard Ejecutivo</h1>
+
+        <p>
+            Sistema institucional de gestión de correspondencia
+        </p>
+
+    </div>
+
+    <div class="hero-actions">
+
+        <button class="btn-primary-custom">
+
+            <i class="bi bi-plus-circle-fill"></i>
+            Nueva Correspondencia
+
+        </button>
+
+        <button class="btn btn-light custom-light-btn">
+
+            <i class="bi bi-download"></i>
+            Exportar
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+
+            <div class="stat-icon blue">
+                <i class="bi bi-inbox-fill"></i>
+            </div>
+
+            <span class="trend up">
+                +12%
+            </span>
+
+        </div>
+
+        <div class="stat-content">
+
+            <span class="stat-label">
+                Correspondencia Entrada
+            </span>
+
+            <h3 id="entradaCounter">
+                0
+            </h3>
+
+            <p>
+                Documentos registrados hoy
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+
+            <div class="stat-icon orange">
+                <i class="bi bi-send-fill"></i>
+            </div>
+
+            <span class="trend up">
+                +8%
+            </span>
+
+        </div>
+
+        <div class="stat-content">
+
+            <span class="stat-label">
+                Correspondencia Salida
+            </span>
+
+            <h3 id="salidaCounter">
+                0
+            </h3>
+
+            <p>
+                Documentos enviados
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+
+            <div class="stat-icon green">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+
+            <span class="trend up">
+                +24%
+            </span>
+
+        </div>
+
+        <div class="stat-content">
+
+            <span class="stat-label">
+                Procesados
+            </span>
+
+            <h3 id="procesadoCounter">
+                0
+            </h3>
+
+            <p>
+                Finalizados correctamente
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="stat-card">
+
+        <div class="stat-top">
+
+            <div class="stat-icon red">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+
+            <span class="trend down">
+                -2%
+            </span>
+
+        </div>
+
+        <div class="stat-content">
+
+            <span class="stat-label">
+                Urgentes
+            </span>
+
+            <h3 id="urgenteCounter">
+                0
+            </h3>
+
+            <p>
+                Requieren atención inmediata
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="dashboard-grid">
+
+    <div class="chart-card">
+
+        <div class="card-header-custom">
+
+            <div>
+
+                <h4>
+                    Flujo de Correspondencia
+                </h4>
+
+                <span>
+                    Estadística mensual en tiempo real
+                </span>
+
+            </div>
+
+            <button class="btn btn-light">
+
+                <i class="bi bi-three-dots"></i>
+
+            </button>
+
+        </div>
+
+        <canvas id="correspondenciaChart"></canvas>
+
+    </div>
+
+
+
+    <div class="activity-card">
+
+        <div class="card-header-custom">
+
+            <div>
+
+                <h4>
+                    Actividad Reciente
+                </h4>
+
+                <span>
+                    Últimos movimientos institucionales
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="activity-list">
+
+            <div class="activity-item">
+
+                <div class="activity-icon blue">
+
+                    <i class="bi bi-inbox-fill"></i>
+
+                </div>
+
+                <div class="activity-content">
+
+                    <h6>
+                        Nueva correspondencia recibida
+                    </h6>
+
+                    <p>
+                        Informe financiero registrado
+                    </p>
+
+                </div>
+
+                <span class="activity-time">
+                    Hace 2 min
+                </span>
+
+            </div>
+
+
+
+            <div class="activity-item">
+
+                <div class="activity-icon orange">
+
+                    <i class="bi bi-send-fill"></i>
+
+                </div>
+
+                <div class="activity-content">
+
+                    <h6>
+                        Documento enviado
+                    </h6>
+
+                    <p>
+                        CITE institucional entregado
+                    </p>
+
+                </div>
+
+                <span class="activity-time">
+                    Hace 10 min
+                </span>
+
+            </div>
+
+
+
+            <div class="activity-item">
+
+                <div class="activity-icon green">
+
+                    <i class="bi bi-check-circle-fill"></i>
+
+                </div>
+
+                <div class="activity-content">
+
+                    <h6>
+                        Correspondencia finalizada
+                    </h6>
+
+                    <p>
+                        Proceso completado exitosamente
+                    </p>
+
+                </div>
+
+                <span class="activity-time">
+                    Hace 35 min
+                </span>
+
+            </div>
+
+
+
+            <div class="activity-item">
+
+                <div class="activity-icon red">
+
+                    <i class="bi bi-exclamation-circle-fill"></i>
+
+                </div>
+
+                <div class="activity-content">
+
+                    <h6>
+                        Documento urgente
+                    </h6>
+
+                    <p>
+                        Prioridad alta asignada
+                    </p>
+
+                </div>
+
+                <span class="activity-time">
+                    Hace 1 hora
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="table-container mt-4">
+
+    <div class="card-header-custom">
+
+        <div>
+
+            <h4>
+                Última Correspondencia
+            </h4>
+
+            <span>
+                Historial institucional
+            </span>
+
+        </div>
+
+        <div class="d-flex gap-2">
+
+            <button class="btn btn-light">
+
+                <i class="bi bi-funnel-fill"></i>
+
+            </button>
+
+            <button class="btn btn-light">
+
+                <i class="bi bi-file-earmark-excel-fill"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table custom-table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Hoja Ruta</th>
+                    <th>Tipo</th>
+                    <th>Referencia</th>
+                    <th>Área</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>HR-2026-001</td>
+
+                    <td>
+
+                        <span class="badge bg-primary">
+                            Entrada
+                        </span>
+
+                    </td>
+
+                    <td>Informe financiero</td>
+
+                    <td>Gerencia</td>
+
+                    <td>
+
+                        <span class="badge bg-danger">
+                            Urgente
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-success">
+                            Procesado
+                        </span>
+
+                    </td>
+
+                    <td>25/05/2026</td>
+
+                </tr>
+
+
+
+                <tr>
+
+                    <td>HS-2026-014</td>
+
+                    <td>
+
+                        <span class="badge bg-warning text-dark">
+                            Salida
+                        </span>
+
+                    </td>
+
+                    <td>Respuesta institucional</td>
+
+                    <td>Legal</td>
+
+                    <td>
+
+                        <span class="badge bg-info">
+                            Media
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <span class="badge bg-primary">
+                            Enviado
+                        </span>
+
+                    </td>
+
+                    <td>25/05/2026</td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const ctx = document.getElementById('correspondenciaChart');
+
+new Chart(ctx, {
+
+    type: 'line',
+
+    data: {
+
+        labels: [
+            'Ene',
+            'Feb',
+            'Mar',
+            'Abr',
+            'May',
+            'Jun',
+            'Jul'
+        ],
+
+        datasets: [
+
+            {
+
+                label: 'Entradas',
+
+                data: [
+                    120,
+                    190,
+                    300,
+                    500,
+                    200,
+                    300,
+                    450
+                ],
+
+                borderColor: '#00AEEF',
+
+                backgroundColor: 'rgba(0,174,239,.08)',
+
+                tension: .4,
+
+                fill: true
+
+            },
+
+            {
+
+                label: 'Salidas',
+
+                data: [
+                    90,
+                    150,
+                    250,
+                    350,
+                    180,
+                    240,
+                    390
+                ],
+
+                borderColor: '#F47B20',
+
+                backgroundColor: 'rgba(244,123,32,.08)',
+
+                tension: .4,
+
+                fill: true
+
+            }
+
+        ]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        interaction: {
+
+            intersect: false,
+            mode: 'index'
+
+        },
+
+        plugins: {
+
+            legend: {
+
+                display: true
+
+            }
+
+        },
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true,
+
+                grid: {
+
+                    color: '#E2E8F0'
+
+                }
+
+            },
+
+            x: {
+
+                grid: {
+
+                    display: false
+
+                }
+
+            }
+
+        }
+
+    }
+
+});
+
+
+
+function animateCounter(id, target) {
+
+    let count = 0;
+
+    const element = document.getElementById(id);
+
+    const increment = target / 100;
+
+    const interval = setInterval(() => {
+
+        count += increment;
+
+        element.innerText = Math.floor(count);
+
+        if (count >= target) {
+
+            element.innerText = target;
+
+            clearInterval(interval);
+
+        }
+
+    }, 20);
+
+}
+
+
+
+animateCounter('entradaCounter', 1245);
+animateCounter('salidaCounter', 984);
+animateCounter('procesadoCounter', 842);
+animateCounter('urgenteCounter', 23);
+
+</script>
+
+{% endblock %}

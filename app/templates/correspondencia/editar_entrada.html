@@ -1,0 +1,101 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Editar Correspondencia{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow border-0 rounded-4">
+
+        <div class="card-header bg-warning">
+            <h4 class="mb-0">
+                <i class="bi bi-pencil-fill"></i>
+                Editar Correspondencia
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Hoja Ruta</label>
+                        <input type="text"
+                               name="hoja_ruta"
+                               class="form-control"
+                               value="{{ entrada.hoja_ruta }}"
+                               required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">CITE</label>
+                        <input type="text"
+                               name="cite"
+                               class="form-control"
+                               value="{{ entrada.cite }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Remitente</label>
+                        <input type="text"
+                               name="remitente"
+                               class="form-control"
+                               value="{{ entrada.remitente }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Institución</label>
+                        <input type="text"
+                               name="institucion_remitente"
+                               class="form-control"
+                               value="{{ entrada.institucion_remitente }}">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Referencia</label>
+                        <input type="text"
+                               name="referencia"
+                               class="form-control"
+                               value="{{ entrada.referencia }}">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Detalle</label>
+                        <textarea name="detalle"
+                                  class="form-control"
+                                  rows="5">{{ entrada.detalle }}</textarea>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+
+                    <button type="submit"
+                            class="btn btn-warning rounded-pill px-4">
+
+                        <i class="bi bi-save-fill"></i>
+                        Guardar Cambios
+
+                    </button>
+
+                    <a href="{{ url_for('dashboard.entrada') }}"
+                        class="btn btn-secondary rounded-pill px-4">
+
+                        Cancelar
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

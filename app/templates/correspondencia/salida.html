@@ -1,0 +1,558 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}
+Correspondencia Salida
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-header">
+
+    <div>
+        <h1>Correspondencia de Salida</h1>
+        <p>Control institucional de documentos enviados</p>
+    </div>
+
+    <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#modalNuevaSalida">
+
+        <i class="bi bi-plus-circle-fill"></i>
+        Nueva Salida
+
+    </button>
+
+</div>
+
+
+<div class="kpi-grid">
+
+    <div class="kpi-card">
+
+        <div class="kpi-icon blue">
+            <i class="bi bi-send-fill"></i>
+        </div>
+
+        <span class="kpi-label">Documentos Enviados</span>
+
+        <h3>985</h3>
+
+        <p>Correspondencia registrada</p>
+
+    </div>
+
+
+    <div class="kpi-card">
+
+        <div class="kpi-icon green">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+
+        <span class="kpi-label">Entregados</span>
+
+        <h3>843</h3>
+
+        <p>Recepción confirmada</p>
+
+    </div>
+
+
+    <div class="kpi-card">
+
+        <div class="kpi-icon orange">
+            <i class="bi bi-clock-fill"></i>
+        </div>
+
+        <span class="kpi-label">Pendientes</span>
+
+        <h3>96</h3>
+
+        <p>Esperando confirmación</p>
+
+    </div>
+
+
+    <div class="kpi-card">
+
+        <div class="kpi-icon red">
+            <i class="bi bi-exclamation-circle-fill"></i>
+        </div>
+
+        <span class="kpi-label">Urgentes</span>
+
+        <h3>12</h3>
+
+        <p>Prioridad alta</p>
+
+    </div>
+
+</div>
+
+
+<div class="table-container">
+
+    <div class="table-header">
+
+        <h4>Correspondencia Enviada</h4>
+
+        <div class="d-flex gap-2">
+
+            <button class="btn btn-light">
+
+                <i class="bi bi-file-earmark-pdf-fill"></i>
+
+            </button>
+
+            <button class="btn btn-light">
+
+                <i class="bi bi-file-earmark-excel-fill"></i>
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-responsive">
+
+        <table class="table custom-table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Hoja Ruta</th>
+                    <th>CITE</th>
+                    <th>Destinatario</th>
+                    <th>Institución</th>
+                    <th>Referencia</th>
+                    <th>Estado</th>
+                    <th>Entrega</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for c in correspondencias %}
+
+                <tr>
+
+                    <td>{{ c.hoja_ruta }}</td>
+                    <td>{{ c.cite }}</td>
+                    <td>{{ c.destinatario }}</td>
+                    <td>{{ c.institucion_destino }}</td>
+                    <td>{{ c.referencia }}</td>
+
+                    <td>
+                        <span class="badge bg-primary">
+                            {{ c.estado }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge bg-success">
+                            {{ c.entrega }}
+                        </span>
+                    </td>
+
+                    <td>{{ c.fecha_registro.strftime('%d/%m/%Y') }}</td>
+
+                    <td>
+
+                        <div class="d-flex gap-2">
+
+                            <button class="btn btn-sm btn-light">
+
+                                <i class="bi bi-eye-fill"></i>
+
+                            </button>
+
+                            <button class="btn btn-sm btn-light">
+
+                                <i class="bi bi-pencil-fill"></i>
+
+                            </button>
+
+                            <button class="btn btn-sm btn-light">
+
+                                <i class="bi bi-trash-fill"></i>
+
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+
+<div class="modal fade" id="modalNuevaSalida" tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h4 class="modal-title">
+                        Nueva Correspondencia de Salida
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        Registro institucional de documentos enviados
+                    </p>
+
+                </div>
+
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <form
+                    action="{{ url_for('dashboard.guardar_salida') }}"
+                    method="POST"
+                >
+
+                    <div class="row">
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Hoja de Ruta
+                                </label>
+
+                                <input type="text" class="form-control-custom" name="hoja_ruta" placeholder="HS-2026-001">
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    CITE
+                                </label>
+
+                                <input type="text" class="form-control-custom" name="cite" placeholder="CITE-001">
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Fecha Envío
+                                </label>
+
+                                <input type="date" class="form-control-custom" name="fecha_envio">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+
+                        <div class="col-lg-6">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Destinatario
+                                </label>
+
+                                <input type="text" class="form-control-custom" name="destinatario" placeholder="Nombre destinatario">
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-6">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Institución Destino
+                                </label>
+
+                                <input type="text" class="form-control-custom" name="institucion_destino" placeholder="Institución destino">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+
+                        <div class="col-lg-12">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Referencia
+                                </label>
+
+                                <input type="text" class="form-control-custom" name="referencia" placeholder="Referencia del documento">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+
+                        <div class="col-lg-12">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Detalle
+                                </label>
+
+                                <textarea class="form-control-custom" name="detalle" placeholder="Detalle institucional"></textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Prioridad
+                                </label>
+
+                                <select class="form-control-custom" name="prioridad">
+
+                                    <option>Seleccione</option>
+                                    <option>BAJA</option>
+                                    <option>MEDIA</option>
+                                    <option>ALTA</option>
+                                    <option>URGENTE</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Estado
+                                </label>
+
+                                <select class="form-control-custom" name="estado">
+
+                                    <option>ENVIADO</option>
+                                    <option>PENDIENTE</option>
+                                    <option>ENTREGADO</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Medio de Envío
+                                </label>
+
+                                <select class="form-control-custom" name="medio_envio">
+
+                                    <option>Mensajería</option>
+                                    <option>Courier</option>
+                                    <option>Correo Electrónico</option>
+                                    <option>Entrega Física</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+
+                        <div class="col-lg-6">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Número de Guía
+                                </label>
+
+                                <input type="text" class="form-control-custom" name="numero_guia" placeholder="Número guía">
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-6">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Adjuntar Documento
+                                </label>
+
+                                <input type="file" class="form-control-custom" name="archivo_adjunto">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Fecha Entrega
+                                </label>
+
+                                <input type="date" class="form-control-custom" name="fecha_entrega">
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-4">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Recibido Por
+                                </label>
+
+                                <input type="text" class="form-control-custom" name="recibido_por" placeholder="Nombre receptor">
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-lg-4 d-flex align-items-center">
+
+                            <div class="form-check mt-4">
+
+                                <input class="form-check-input" type="checkbox" name="confirmar_entrega">
+
+                                <label class="form-check-label">
+                                    Confirmar entrega
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row mt-3">
+
+                        <div class="col-lg-12">
+
+                            <div class="form-group">
+
+                                <label class="form-label">
+                                    Observaciones
+                                </label>
+
+                                <textarea class="form-control-custom" name="observaciones" placeholder="Observaciones institucionales"></textarea>
+
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+
+                            <button class="btn btn-light" data-bs-dismiss="modal">
+
+                                Cancelar
+
+                            </button>
+
+                            <button class="btn-primary-custom" type="submit">
+
+                                <i class="bi bi-save-fill"></i>
+                                Correspondencia
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

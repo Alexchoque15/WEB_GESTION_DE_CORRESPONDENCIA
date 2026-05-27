@@ -1,0 +1,72 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Ver Correspondencia{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="card shadow border-0 rounded-4">
+
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="bi bi-eye-fill"></i>
+                Detalle de Correspondencia
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-4">
+
+                <div class="col-md-6">
+                    <label class="fw-bold">Hoja de Ruta</label>
+                    <div class="form-control">{{ entrada.hoja_ruta }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-bold">CITE</label>
+                    <div class="form-control">{{ entrada.cite }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-bold">Remitente</label>
+                    <div class="form-control">{{ entrada.remitente }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="fw-bold">Institución</label>
+                    <div class="form-control">{{ entrada.institucion_remitente }}</div>
+                </div>
+
+                <div class="col-12">
+                    <label class="fw-bold">Referencia</label>
+                    <div class="form-control">{{ entrada.referencia }}</div>
+                </div>
+
+                <div class="col-12">
+                    <label class="fw-bold">Detalle</label>
+                    <textarea class="form-control" rows="5" readonly>{{ entrada.detalle }}</textarea>
+                </div>
+
+            </div>
+
+            <div class="mt-4">
+
+                <a href="{{ url_for('dashboard.entrada') }}"
+                    class="btn btn-secondary rounded-pill px-4">
+
+                    <i class="bi bi-arrow-left"></i>
+                    Volver
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
