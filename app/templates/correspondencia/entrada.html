@@ -6,26 +6,40 @@ Correspondencia Entrada
 
 {% block content %}
 
-<div class="dashboard-header">
+<div class="dashboard-header d-flex justify-content-between align-items-center flex-wrap gap-3">
 
     <div>
-        <h1>Correspondencia de Entrada</h1>
-        <p>Registro institucional de documentos recibidos</p>
+        <h1 class="mb-1">
+            Correspondencia de Entrada
+        </h1>
+
+        <p class="text-muted mb-0">
+            Registro institucional de documentos recibidos
+        </p>
     </div>
 
-    <a
-        href="{{ url_for('dashboard.entrada_archivados') }}"
-        class="btn btn-dark rounded-pill px-4">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
 
-        <i class="bi bi-archive-fill"></i>
-        Archivados
+        <a
+            href="{{ url_for('dashboard.entrada_archivados') }}"
+            class="btn btn-dark rounded-pill px-4 shadow-sm">
 
-    </a>
+            <i class="bi bi-archive-fill"></i>
+            Archivados
 
-    <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#modalNuevaEntrada">
-        <i class="bi bi-plus-circle-fill"></i>
-        Nueva Correspondencia
-    </button>
+        </a>
+
+        <button
+            class="btn-primary-custom"
+            data-bs-toggle="modal"
+            data-bs-target="#modalNuevaEntrada">
+
+            <i class="bi bi-plus-circle-fill"></i>
+            Nueva Correspondencia
+
+        </button>
+
+    </div>
 
 </div>
 
@@ -37,13 +51,23 @@ Correspondencia Entrada
 
         <div class="d-flex gap-2">
 
-            <button class="btn btn-light">
-                <i class="bi bi-file-earmark-pdf-fill"></i>
-            </button>
+            <a
+                href="{{ url_for('dashboard.exportar_entrada_pdf') }}"
+                class="btn btn-danger rounded-pill px-4 shadow-sm">
 
-            <button class="btn btn-light">
+                <i class="bi bi-file-earmark-pdf-fill"></i>
+                PDF
+
+            </a>
+
+            <a
+                href="{{ url_for('dashboard.exportar_entrada_excel') }}"
+                class="btn btn-success rounded-pill px-4 shadow-sm">
+
                 <i class="bi bi-file-earmark-excel-fill"></i>
-            </button>
+                Excel
+
+            </a>
 
         </div>
 
@@ -272,7 +296,7 @@ Correspondencia Entrada
                             <form
                                 action="{{ url_for('dashboard.eliminar_entrada', id=c.id) }}"
                                 method="POST"
-                                onsubmit="return confirm('¿Archivar correspondencia?')">
+                                class="form-eliminar">
 
                                 <button
                                     type="submit"
@@ -304,16 +328,26 @@ Correspondencia Entrada
 
 <div class="modal fade" id="verModal{{ c.id }}" tabindex="-1">
 
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
 
-        <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
 
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-dark text-white py-4">
 
-                <h5 class="modal-title">
-                    <i class="bi bi-eye-fill"></i>
-                    Detalle Correspondencia
-                </h5>
+                <div>
+
+                    <h4 class="modal-title fw-bold mb-1">
+
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                        Detalle de Correspondencia
+
+                    </h4>
+
+                    <small class="text-light opacity-75">
+                        Información institucional registrada
+                    </small>
+
+                </div>
 
                 <button
                     type="button"
@@ -323,118 +357,351 @@ Correspondencia Entrada
 
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body p-4">
 
                 <div class="row g-4">
 
                     <div class="col-md-4">
-                        <label class="fw-bold">Hoja Ruta</label>
-                        <div>{{ c.hoja_ruta }}</div>
-                    </div>
 
-                    <div class="col-md-4">
-                        <label class="fw-bold">CITE</label>
-                        <div>{{ c.cite }}</div>
-                    </div>
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
 
-                    <div class="col-md-4">
-                        <label class="fw-bold">Fecha Documento</label>
-                        <div>
-                            {{ c.fecha_documento.strftime('%d/%m/%Y') if c.fecha_documento else '-' }}
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    Hoja de Ruta
+                                </label>
+
+                                <h5 class="fw-bold text-primary">
+                                    {{ c.hoja_ruta }}
+                                </h5>
+
+                            </div>
+
                         </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    CITE
+                                </label>
+
+                                <h6 class="fw-semibold">
+                                    {{ c.cite or '-' }}
+                                </h6>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    Fecha Documento
+                                </label>
+
+                                <h6>
+                                    {{ c.fecha_documento.strftime('%d/%m/%Y') if c.fecha_documento else '-' }}
+                                </h6>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <div class="col-md-6">
-                        <label class="fw-bold">Remitente</label>
-                        <div>{{ c.remitente }}</div>
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    Remitente
+                                </label>
+
+                                <h6 class="fw-semibold">
+                                    {{ c.remitente }}
+                                </h6>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
                     <div class="col-md-6">
-                        <label class="fw-bold">Institución</label>
-                        <div>{{ c.institucion_remitente }}</div>
-                    </div>
 
-                    <div class="col-md-12">
-                        <label class="fw-bold">Referencia</label>
-                        <div>{{ c.referencia }}</div>
-                    </div>
+                        <div class="card border-0 shadow-sm rounded-4">
 
-                    <div class="col-md-12">
-                        <label class="fw-bold">Detalle</label>
-                        <div>{{ c.detalle }}</div>
-                    </div>
+                            <div class="card-body">
 
-                    <div class="col-md-4">
-                        <label class="fw-bold">Prioridad</label>
-                        <div>{{ c.prioridad }}</div>
-                    </div>
+                                <label class="text-muted small">
+                                    Institución
+                                </label>
 
-                    <div class="col-md-4">
-                        <label class="fw-bold">Estado</label>
-                        <div>{{ c.estado }}</div>
-                    </div>
+                                <h6 class="fw-semibold">
+                                    {{ c.institucion_remitente or '-' }}
+                                </h6>
 
-                    <div class="col-md-4">
-                        <label class="fw-bold">Área</label>
-                        <div>{{ c.area_destino }}</div>
-                    </div>
+                            </div>
 
-                    <div class="col-md-4">
-                        <label class="fw-bold">Fecha Límite</label>
-                        <div>
-                            {{ c.fecha_limite.strftime('%d/%m/%Y') if c.fecha_limite else '-' }}
                         </div>
-                    </div>
 
-                    <div class="col-md-4">
-                        <label class="fw-bold">Urgente</label>
-                        <div>
-                            {% if c.urgente %}
-                                SI
-                            {% else %}
-                                NO
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="fw-bold">Requiere Respuesta</label>
-                        <div>
-                            {% if c.requiere_respuesta %}
-                                SI
-                            {% else %}
-                                NO
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <label class="fw-bold">Observaciones</label>
-                        <div>{{ c.observaciones }}</div>
                     </div>
 
                     <div class="col-md-12">
 
-                        <label class="fw-bold">Archivo</label>
+                        <div class="card border-0 shadow-sm rounded-4">
 
-                        <div>
+                            <div class="card-body">
 
-                            {% if c.archivo %}
+                                <label class="text-muted small">
+                                    Referencia
+                                </label>
 
-                                <a href="{{ url_for('static', filename='uploads/' + c.archivo) }}"
-                                   target="_blank"
-                                   class="btn btn-primary">
+                                <p class="mb-0 fw-semibold">
+                                    {{ c.referencia }}
+                                </p>
 
-                                    <i class="bi bi-file-earmark-arrow-down-fill"></i>
-                                    Ver Archivo
+                            </div>
 
-                                </a>
+                        </div>
 
-                            {% else %}
+                    </div>
 
-                                Sin archivo
+                    <div class="col-md-12">
 
-                            {% endif %}
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    Detalle
+                                </label>
+
+                                <p class="mb-0">
+                                    {{ c.detalle or '-' }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body text-center">
+
+                                <label class="text-muted small d-block mb-2">
+                                    Prioridad
+                                </label>
+
+                                <span class="badge bg-danger px-4 py-2 rounded-pill">
+                                    {{ c.prioridad }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body text-center">
+
+                                <label class="text-muted small d-block mb-2">
+                                    Estado
+                                </label>
+
+                                <span class="badge bg-primary px-4 py-2 rounded-pill">
+                                    {{ c.estado }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body text-center">
+
+                                <label class="text-muted small d-block mb-2">
+                                    Urgente
+                                </label>
+
+                                <span class="badge bg-warning text-dark px-4 py-2 rounded-pill">
+
+                                    {{ 'SI' if c.urgente else 'NO' }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body text-center">
+
+                                <label class="text-muted small d-block mb-2">
+                                    Respuesta
+                                </label>
+
+                                <span class="badge bg-success px-4 py-2 rounded-pill">
+
+                                    {{ 'SI' if c.requiere_respuesta else 'NO' }}
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    Área Destino
+                                </label>
+
+                                <h6>{{ c.area_destino or '-' }}</h6>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    Fecha Límite
+                                </label>
+
+                                <h6>
+
+                                    {{ c.fecha_limite.strftime('%d/%m/%Y') if c.fecha_limite else '-' }}
+
+                                </h6>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-12">
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    Observaciones
+                                </label>
+
+                                <p class="mb-0">
+                                    {{ c.observaciones or '-' }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    Archivo
+                                </label>
+
+                                <div class="mt-2">
+
+                                    {% if c.archivo %}
+
+                                    <a
+                                        href="{{ url_for('static', filename='uploads/' + c.archivo) }}"
+                                        target="_blank"
+                                        class="btn btn-outline-primary rounded-pill">
+
+                                        <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                                        Ver Archivo
+
+                                    </a>
+
+                                    {% else %}
+
+                                    <span class="text-muted">
+                                        Sin archivo adjunto
+                                    </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div class="card border-0 shadow-sm rounded-4">
+
+                            <div class="card-body">
+
+                                <label class="text-muted small">
+                                    Fecha Registro
+                                </label>
+
+                                <h6>
+
+                                    {{ c.fecha_registro.strftime('%d/%m/%Y %H:%M') if c.fecha_registro else '-' }}
+
+                                </h6>
+
+                            </div>
 
                         </div>
 
@@ -450,23 +717,35 @@ Correspondencia Entrada
 
 </div>
 
+<!-- MODAL EDITAR -->
+
 <div class="modal fade" id="editarModal{{ c.id }}" tabindex="-1">
 
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
 
-        <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
 
             <form
                 method="POST"
-                enctype="multipart/form-data"
-                action="{{ url_for('dashboard.editar_entrada', id=c.id) }}">
+                action="{{ url_for('dashboard.editar_entrada', id=c.id) }}"
+                enctype="multipart/form-data">
 
-                <div class="modal-header bg-warning">
+                <!-- HEADER -->
 
-                    <h5 class="modal-title">
-                        <i class="bi bi-pencil-fill"></i>
-                        Editar Correspondencia
-                    </h5>
+                <div class="modal-header bg-warning bg-gradient border-0 py-4 px-4">
+
+                    <div>
+
+                        <h4 class="modal-title fw-bold text-dark mb-1">
+                            <i class="bi bi-pencil-square"></i>
+                            Editar Correspondencia
+                        </h4>
+
+                        <small class="text-dark">
+                            Actualización institucional del documento registrado
+                        </small>
+
+                    </div>
 
                     <button
                         type="button"
@@ -476,120 +755,369 @@ Correspondencia Entrada
 
                 </div>
 
-                <div class="modal-body">
+                <!-- BODY -->
 
-                    <div class="row g-3">
+                <div
+                    class="modal-body p-4 bg-light"
+                    style="max-height: 78vh; overflow-y: auto;">
 
-                        <div class="col-md-6">
+                    <!-- DATOS PRINCIPALES -->
 
-                            <label class="form-label">Hoja Ruta</label>
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
 
-                            <input
-                                type="text"
-                                class="form-control"
-                                name="hoja_ruta"
-                                value="{{ c.hoja_ruta }}">
+                        <div class="card-body p-4">
 
-                        </div>
+                            <h5 class="fw-bold mb-4 text-primary">
+                                <i class="bi bi-file-earmark-text-fill"></i>
+                                Información Principal
+                            </h5>
 
-                        <div class="col-md-6">
+                            <div class="row g-4">
 
-                            <label class="form-label">CITE</label>
+                                <div class="col-md-4">
 
-                            <input
-                                type="text"
-                                class="form-control"
-                                name="cite"
-                                value="{{ c.cite }}">
+                                    <label class="form-label fw-semibold">
+                                        Hoja Ruta
+                                    </label>
 
-                        </div>
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-lg rounded-4"
+                                        name="hoja_ruta"
+                                        value="{{ c.hoja_ruta }}"
+                                        required>
 
-                        <div class="col-md-6">
+                                </div>
 
-                            <label class="form-label">Fecha Documento</label>
+                                <div class="col-md-4">
 
-                            <input
-                                type="date"
-                                class="form-control"
-                                name="fecha_documento"
-                                value="{{ c.fecha_documento }}">
+                                    <label class="form-label fw-semibold">
+                                        CITE
+                                    </label>
 
-                        </div>
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-lg rounded-4"
+                                        name="cite"
+                                        value="{{ c.cite or '' }}">
 
-                        <div class="col-md-6">
+                                </div>
 
-                            <label class="form-label">Fecha Límite</label>
+                                <div class="col-md-4">
 
-                            <input
-                                type="date"
-                                class="form-control"
-                                name="fecha_limite"
-                                value="{{ c.fecha_limite }}">
+                                    <label class="form-label fw-semibold">
+                                        Fecha Documento
+                                    </label>
 
-                        </div>
+                                    <input
+                                        type="date"
+                                        class="form-control form-control-lg rounded-4"
+                                        name="fecha_documento"
+                                        value="{{ c.fecha_documento.strftime('%Y-%m-%d') if c.fecha_documento else '' }}">
 
-                        <div class="col-md-12">
+                                </div>
 
-                            <label class="form-label">Remitente</label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                name="remitente"
-                                value="{{ c.remitente }}">
-
-                        </div>
-
-                        <div class="col-md-12">
-
-                            <label class="form-label">Institución</label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                name="institucion_remitente"
-                                value="{{ c.institucion_remitente }}">
+                            </div>
 
                         </div>
 
-                        <div class="col-md-12">
+                    </div>
 
-                            <label class="form-label">Referencia</label>
+                    <!-- REMITENTE -->
+
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+                        <div class="card-body p-4">
+
+                            <h5 class="fw-bold mb-4 text-success">
+                                <i class="bi bi-person-fill"></i>
+                                Datos del Remitente
+                            </h5>
+
+                            <div class="row g-4">
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-semibold">
+                                        Remitente
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-lg rounded-4"
+                                        name="remitente"
+                                        value="{{ c.remitente }}">
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-semibold">
+                                        Institución Remitente
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-lg rounded-4"
+                                        name="institucion_remitente"
+                                        value="{{ c.institucion_remitente or '' }}">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- CONTENIDO -->
+
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+                        <div class="card-body p-4">
+
+                            <h5 class="fw-bold mb-4 text-danger">
+                                <i class="bi bi-journal-text"></i>
+                                Contenido del Documento
+                            </h5>
+
+                            <div class="row g-4">
+
+                                <div class="col-md-12">
+
+                                    <label class="form-label fw-semibold">
+                                        Referencia
+                                    </label>
+
+                                    <textarea
+                                        class="form-control rounded-4"
+                                        rows="3"
+                                        name="referencia">{{ c.referencia }}</textarea>
+
+                                </div>
+
+                                <div class="col-md-12">
+
+                                    <label class="form-label fw-semibold">
+                                        Detalle
+                                    </label>
+
+                                    <textarea
+                                        class="form-control rounded-4"
+                                        rows="4"
+                                        name="detalle">{{ c.detalle or '' }}</textarea>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- GESTIÓN -->
+
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+                        <div class="card-body p-4">
+
+                            <h5 class="fw-bold mb-4 text-warning">
+                                <i class="bi bi-gear-fill"></i>
+                                Gestión Institucional
+                            </h5>
+
+                            <div class="row g-4">
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label fw-semibold">
+                                        Prioridad
+                                    </label>
+
+                                    <select
+                                        class="form-select form-select-lg rounded-4"
+                                        name="prioridad">
+
+                                        <option value="BAJA"
+                                            {% if c.prioridad == 'BAJA' %}selected{% endif %}>
+                                            BAJA
+                                        </option>
+
+                                        <option value="MEDIA"
+                                            {% if c.prioridad == 'MEDIA' %}selected{% endif %}>
+                                            MEDIA
+                                        </option>
+
+                                        <option value="ALTA"
+                                            {% if c.prioridad == 'ALTA' %}selected{% endif %}>
+                                            ALTA
+                                        </option>
+
+                                        <option value="URGENTE"
+                                            {% if c.prioridad == 'URGENTE' %}selected{% endif %}>
+                                            URGENTE
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label fw-semibold">
+                                        Estado
+                                    </label>
+
+                                    <select
+                                        class="form-select form-select-lg rounded-4"
+                                        name="estado">
+
+                                        <option value="RECIBIDO"
+                                            {% if c.estado == 'RECIBIDO' %}selected{% endif %}>
+                                            RECIBIDO
+                                        </option>
+
+                                        <option value="ASIGNADO"
+                                            {% if c.estado == 'ASIGNADO' %}selected{% endif %}>
+                                            ASIGNADO
+                                        </option>
+
+                                        <option value="EN PROCESO"
+                                            {% if c.estado == 'EN PROCESO' %}selected{% endif %}>
+                                            EN PROCESO
+                                        </option>
+
+                                        <option value="FINALIZADO"
+                                            {% if c.estado == 'FINALIZADO' %}selected{% endif %}>
+                                            FINALIZADO
+                                        </option>
+
+                                        <option value="ARCHIVADO"
+                                            {% if c.estado == 'ARCHIVADO' %}selected{% endif %}>
+                                            ARCHIVADO
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label fw-semibold">
+                                        Área Destino
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-lg rounded-4"
+                                        name="area_destino"
+                                        value="{{ c.area_destino or '' }}">
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-semibold">
+                                        Fecha Límite
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        class="form-control form-control-lg rounded-4"
+                                        name="fecha_limite"
+                                        value="{{ c.fecha_limite.strftime('%Y-%m-%d') if c.fecha_limite else '' }}">
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label fw-semibold">
+                                        Reemplazar Archivo
+                                    </label>
+
+                                    <input
+                                        type="file"
+                                        class="form-control form-control-lg rounded-4"
+                                        name="archivo">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- OPCIONES -->
+
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+
+                        <div class="card-body p-4">
+
+                            <h5 class="fw-bold mb-4 text-secondary">
+                                <i class="bi bi-check2-square"></i>
+                                Opciones Adicionales
+                            </h5>
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+
+                                    <div class="form-check form-switch fs-5">
+
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="urgente"
+                                            {% if c.urgente %}checked{% endif %}>
+
+                                        <label class="form-check-label fw-semibold">
+                                            Documento urgente
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="form-check form-switch fs-5">
+
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="requiere_respuesta"
+                                            {% if c.requiere_respuesta %}checked{% endif %}>
+
+                                        <label class="form-check-label fw-semibold">
+                                            Requiere respuesta
+                                        </label>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- OBSERVACIONES -->
+
+                    <div class="card border-0 shadow-sm rounded-4">
+
+                        <div class="card-body p-4">
+
+                            <h5 class="fw-bold mb-4 text-dark">
+                                <i class="bi bi-chat-left-text-fill"></i>
+                                Observaciones
+                            </h5>
 
                             <textarea
-                                class="form-control"
-                                name="referencia">{{ c.referencia }}</textarea>
-
-                        </div>
-
-                        <div class="col-md-12">
-
-                            <label class="form-label">Detalle</label>
-
-                            <textarea
-                                class="form-control"
-                                name="detalle">{{ c.detalle }}</textarea>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">Observaciones</label>
-
-                            <textarea
-                                class="form-control"
-                                name="observaciones">{{ c.observaciones }}</textarea>
-
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">Archivo</label>
-
-                            <input
-                                type="file"
-                                class="form-control"
-                                name="archivo_adjunto">
+                                class="form-control rounded-4"
+                                rows="5"
+                                name="observaciones">{{ c.observaciones or '' }}</textarea>
 
                         </div>
 
@@ -597,11 +1125,13 @@ Correspondencia Entrada
 
                 </div>
 
-                <div class="modal-footer">
+                <!-- FOOTER -->
+
+                <div class="modal-footer bg-white border-0 px-4 py-3">
 
                     <button
                         type="button"
-                        class="btn btn-secondary"
+                        class="btn btn-light rounded-pill px-4"
                         data-bs-dismiss="modal">
 
                         Cancelar
@@ -610,7 +1140,7 @@ Correspondencia Entrada
 
                     <button
                         type="submit"
-                        class="btn btn-warning">
+                        class="btn btn-warning rounded-pill px-5 fw-semibold shadow-sm">
 
                         <i class="bi bi-save-fill"></i>
                         Guardar Cambios
@@ -991,5 +1521,55 @@ Correspondencia Entrada
     </div>
 
 </div>
+
+<script>
+
+document.querySelectorAll('.form-eliminar').forEach(form => {
+
+    form.addEventListener('submit', function(e) {
+
+        e.preventDefault()
+
+        Swal.fire({
+
+            title: '¿Archivar correspondencia?',
+
+            text: 'El registro será enviado a la papelera institucional.',
+
+            icon: 'warning',
+
+            showCancelButton: true,
+
+            confirmButtonColor: '#111827',
+
+            cancelButtonColor: '#6b7280',
+
+            confirmButtonText: 'Sí, archivar',
+
+            cancelButtonText: 'Cancelar',
+
+            background: '#1f2937',
+
+            color: '#ffffff',
+
+            borderRadius: '16px'
+
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                if (result.isConfirmed) {
+                    form.submit()
+                }
+
+            }
+
+        })
+
+    })
+
+})
+
+</script>
 
 {% endblock %}

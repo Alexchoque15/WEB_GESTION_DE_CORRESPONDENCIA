@@ -1,7 +1,12 @@
+import pandas as pd
 import os
 
 from datetime import datetime
+from io import BytesIO
+from xhtml2pdf import pisa
+from flask import render_template_string
 
+from flask import make_response
 from flask import Blueprint
 from flask import render_template
 from flask import request
@@ -264,94 +269,41 @@ def editar_entrada(id):
 
     try:
 
-        existe = CorrespondenciaEntrada.query.filter(
-            CorrespondenciaEntrada.hoja_ruta == request.form.get('hoja_ruta'),
-            CorrespondenciaEntrada.id != id
-        ).first()
+        correspondencia.hoja_ruta = request.form.get('hoja_ruta')
+        correspondencia.cite = request.form.get('cite')
+        correspondencia.fecha_documento = request.form.get('fecha_documento') or None
 
-        if existe:
+        correspondencia.remitente = request.form.get('remitente')
 
-            flash(
-                'La hoja de ruta ya existe',
-                'error'
-            )
+        correspondencia.institucion_remitente = request.form.get('institucion_remitente')
 
-            return redirect(url_for('dashboard.entrada'))
+        correspondencia.referencia = request.form.get('referencia')
 
-        correspondencia.hoja_ruta = request.form.get(
-            'hoja_ruta'
-        )
+        correspondencia.detalle = request.form.get('detalle')
 
-        correspondencia.cite = request.form.get(
-            'cite'
-        )
+        correspondencia.prioridad = request.form.get('prioridad')
 
-        correspondencia.remitente = request.form.get(
-            'remitente'
-        )
+        correspondencia.estado = request.form.get('estado')
 
-        correspondencia.institucion_remitente = request.form.get(
-            'institucion_remitente'
-        )
+        correspondencia.area_destino = request.form.get('area_destino')
 
-        correspondencia.referencia = request.form.get(
-            'referencia'
-        )
+        correspondencia.fecha_limite = request.form.get('fecha_limite') or None
 
-        correspondencia.detalle = request.form.get(
-            'detalle'
-        )
+        correspondencia.urgente = True if request.form.get('urgente') else False
 
-        correspondencia.prioridad = request.form.get(
-            'prioridad'
-        )
+        correspondencia.requiere_respuesta = True if request.form.get('requiere_respuesta') else False
 
-        correspondencia.estado = request.form.get(
-            'estado'
-        )
+        correspondencia.observaciones = request.form.get('observaciones')
 
-        correspondencia.area_destino = request.form.get(
-            'area_destino'
-        )
-
-        correspondencia.fecha_documento = request.form.get(
-            'fecha_documento'
-        ) or None
-
-        correspondencia.fecha_limite = request.form.get(
-            'fecha_limite'
-        ) or None
-
-        correspondencia.requiere_respuesta = True if request.form.get(
-            'requiere_respuesta'
-        ) else False
-
-        correspondencia.urgente = True if request.form.get(
-            'documento_urgente'
-        ) else False
-
-        correspondencia.observaciones = request.form.get(
-            'observaciones'
-        )
-
-        archivo = request.files.get('archivo_adjunto')
+        archivo = request.files.get('archivo')
 
         if archivo and archivo.filename != '':
 
-            nombre_archivo = secure_filename(
-                archivo.filename
-            )
-
-            carpeta_upload = os.path.join(
-                current_app.root_path,
-                'static',
-                'uploads'
-            )
-
-            os.makedirs(carpeta_upload, exist_ok=True)
+            nombre_archivo = archivo.filename
 
             ruta_upload = os.path.join(
-                carpeta_upload,
+                current_app.root_path,
+                'static/uploads',
                 nombre_archivo
             )
 
@@ -361,22 +313,15 @@ def editar_entrada(id):
 
         db.session.commit()
 
-        flash(
-            'Correspondencia actualizada correctamente',
-            'success'
-        )
+        flash('Correspondencia actualizada correctamente', 'success')
 
     except Exception as e:
 
         db.session.rollback()
 
-        flash(
-            f'Error al actualizar: {str(e)}',
-            'error'
-        )
+        flash(f'Error al actualizar: {str(e)}', 'error')
 
     return redirect(url_for('dashboard.entrada'))
-
 
 @dashboard_bp.route('/entrada/eliminar/<int:id>', methods=['POST'])
 def eliminar_entrada(id):
@@ -470,3 +415,164 @@ def guardar_salida():
         )
 
     return redirect(url_for('dashboard.salida'))
+
+@dashboard_bp.route('/entrada/exportar/pdf')
+def exportar_entrada_pdf():
+
+    correspondencias = CorrespondenciaEntrada.query.order_by(
+        CorrespondenciaEntrada.id.desc()
+    ).all()
+
+    html = render_template_string("""
+
+    <html>
+
+    <head>
+
+        <style>
+
+            body{
+                font-family: Arial;
+                font-size: 12px;
+            }
+
+            h2{
+                text-align:center;
+                margin-bottom:20px;
+            }
+
+            table{
+                width:100%;
+                border-collapse: collapse;
+            }
+
+            th, td{
+                border:1px solid #ccc;
+                padding:6px;
+            }
+
+            th{
+                background:#111827;
+                color:white;
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <h2>Reporte Correspondencia Entrada</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Hoja Ruta</th>
+                    <th>CITE</th>
+                    <th>Remitente</th>
+                    <th>Referencia</th>
+                    <th>Estado</th>
+                    <th>Prioridad</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for c in correspondencias %}
+
+                <tr>
+
+                    <td>{{ c.id }}</td>
+                    <td>{{ c.hoja_ruta }}</td>
+                    <td>{{ c.cite }}</td>
+                    <td>{{ c.remitente }}</td>
+                    <td>{{ c.referencia }}</td>
+                    <td>{{ c.estado }}</td>
+                    <td>{{ c.prioridad }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </body>
+
+    </html>
+
+    """, correspondencias=correspondencias)
+
+    pdf = BytesIO()
+
+    pisa.CreatePDF(html, dest=pdf)
+
+    response = make_response(pdf.getvalue())
+
+    response.headers['Content-Type'] = 'application/pdf'
+
+    response.headers['Content-Disposition'] = (
+        'attachment; filename=correspondencia_entrada.pdf'
+    )
+
+    return response
+
+
+@dashboard_bp.route('/entrada/exportar/excel')
+def exportar_entrada_excel():
+
+    correspondencias = CorrespondenciaEntrada.query.order_by(
+        CorrespondenciaEntrada.id.desc()
+    ).all()
+
+    datos = []
+
+    for c in correspondencias:
+
+        datos.append({
+
+            'ID': c.id,
+            'Hoja Ruta': c.hoja_ruta,
+            'CITE': c.cite,
+            'Remitente': c.remitente,
+            'Institución': c.institucion_remitente,
+            'Referencia': c.referencia,
+            'Detalle': c.detalle,
+            'Prioridad': c.prioridad,
+            'Estado': c.estado,
+            'Área': c.area_destino,
+            'Urgente': 'SI' if c.urgente else 'NO',
+            'Respuesta': 'SI' if c.requiere_respuesta else 'NO'
+
+        })
+
+    df = pd.DataFrame(datos)
+
+    output = BytesIO()
+
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+
+        df.to_excel(
+            writer,
+            index=False,
+            sheet_name='Correspondencia'
+        )
+
+    response = make_response(output.getvalue())
+
+    response.headers[
+        'Content-Disposition'
+    ] = 'attachment; filename=correspondencia_entrada.xlsx'
+
+    response.headers[
+        'Content-type'
+    ] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    return response

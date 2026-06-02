@@ -93,7 +93,8 @@ Correspondencia Archivada
 
                             <form
                                 method="POST"
-                                action="{{ url_for('dashboard.restaurar_entrada', id=c.id) }}">
+                                action="{{ url_for('dashboard.restaurar_entrada', id=c.id) }}"
+                                class="form-restaurar">
 
                                 <button
                                     type="submit"
@@ -110,7 +111,7 @@ Correspondencia Archivada
                             <form
                                 method="POST"
                                 action="{{ url_for('dashboard.eliminar_definitivo_entrada', id=c.id) }}"
-                                onsubmit="return confirm('¿Eliminar definitivamente?')">
+                                class="form-eliminar-definitivo">
 
                                 <button
                                     type="submit"
@@ -137,5 +138,98 @@ Correspondencia Archivada
     </div>
 
 </div>
+
+<script>
+
+document.querySelectorAll('.form-restaurar').forEach(form => {
+
+    form.addEventListener('submit', function(e) {
+
+        e.preventDefault()
+
+        Swal.fire({
+
+            title: '¿Restaurar correspondencia?',
+
+            text: 'El registro volverá al sistema principal.',
+
+            icon: 'question',
+
+            showCancelButton: true,
+
+            confirmButtonColor: '#198754',
+
+            cancelButtonColor: '#6c757d',
+
+            confirmButtonText: 'Sí, restaurar',
+
+            cancelButtonText: 'Cancelar',
+
+            background: '#1f2937',
+
+            color: '#ffffff',
+
+            borderRadius: '16px'
+
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                form.submit()
+
+            }
+
+        })
+
+    })
+
+})
+
+
+document.querySelectorAll('.form-eliminar-definitivo').forEach(form => {
+
+    form.addEventListener('submit', function(e) {
+
+        e.preventDefault()
+
+        Swal.fire({
+
+            title: '¿Eliminar definitivamente?',
+
+            text: 'Esta acción no se podrá deshacer.',
+
+            icon: 'error',
+
+            showCancelButton: true,
+
+            confirmButtonColor: '#dc3545',
+
+            cancelButtonColor: '#6c757d',
+
+            confirmButtonText: 'Sí, eliminar',
+
+            cancelButtonText: 'Cancelar',
+
+            background: '#1f2937',
+
+            color: '#ffffff',
+
+            borderRadius: '16px'
+
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                form.submit()
+
+            }
+
+        })
+
+    })
+
+})
+
+</script>
 
 {% endblock %}

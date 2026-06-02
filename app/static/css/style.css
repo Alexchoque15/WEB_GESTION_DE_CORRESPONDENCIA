@@ -1426,3 +1426,40 @@ textarea.form-control-custom {
 .btn-danger{
     background:linear-gradient(135deg,#ef4444,#dc2626);
 }
+
+.modal-content {
+    border-radius: 24px;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #c7c7c7;
+    border-radius: 20px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid #dbe1ea;
+    padding: 14px 18px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 0.15rem rgba(99, 102, 241, 0.25);
+}
+
+.card {
+    transition: 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
