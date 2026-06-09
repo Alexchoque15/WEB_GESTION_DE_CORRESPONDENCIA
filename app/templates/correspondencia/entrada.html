@@ -1,720 +1,791 @@
 {% extends 'layouts/base.html' %}
-
 {% block title %}
 Correspondencia Entrada
 {% endblock %}
-
 {% block content %}
-
 <div class="dashboard-header d-flex justify-content-between align-items-center flex-wrap gap-3">
-
     <div>
         <h1 class="mb-1">
             Correspondencia de Entrada
         </h1>
-
         <p class="text-muted mb-0">
             Registro institucional de documentos recibidos
         </p>
     </div>
-
     <div class="d-flex align-items-center gap-2 flex-wrap">
-
-        <a
-            href="{{ url_for('dashboard.entrada_archivados') }}"
-            class="btn btn-dark rounded-pill px-4 shadow-sm">
-
-            <i class="bi bi-archive-fill"></i>
-            Archivados
-
-        </a>
-
         <button
             class="btn-primary-custom"
             data-bs-toggle="modal"
             data-bs-target="#modalNuevaEntrada">
-
             <i class="bi bi-plus-circle-fill"></i>
             Nueva Correspondencia
-
         </button>
-
     </div>
-
 </div>
-
 <div class="table-container">
-
     <div class="table-header">
-
         <h4>Documentos Registrados</h4>
-
         <div class="d-flex gap-2">
-
             <a
                 href="{{ url_for('dashboard.exportar_entrada_pdf') }}"
-                class="btn btn-danger rounded-pill px-4 shadow-sm">
-
+                class="btn btn-light" title="Exportar PDF">
                 <i class="bi bi-file-earmark-pdf-fill"></i>
                 PDF
-
             </a>
-
             <a
                 href="{{ url_for('dashboard.exportar_entrada_excel') }}"
-                class="btn btn-success rounded-pill px-4 shadow-sm">
-
+                class="btn btn-light" title="Exportar Excel">
                 <i class="bi bi-file-earmark-excel-fill"></i>
                 Excel
-
             </a>
-
         </div>
-
     </div>
-
     <div class="table-responsive" style="overflow-x:auto;">
-
-        <table class="table table-hover align-middle table-bordered">
-
-            <thead class="table-dark">
-
+        <table class="table custom-table align-middle">
+            <thead>
                 <tr>
-
-                    <th>ID</th>
                     <th>Hoja Ruta</th>
                     <th>CITE</th>
-                    <th>Fecha Doc.</th>
+                    <th>Fecha</th>
                     <th>Remitente</th>
                     <th>Institución</th>
                     <th>Referencia</th>
-                    <th>Detalle</th>
                     <th>Prioridad</th>
                     <th>Estado</th>
-                    <th>Área</th>
-                    <th>Fecha Límite</th>
-                    <th>Urgente</th>
                     <th>Respuesta</th>
                     <th>Archivo</th>
-                    <th>Observaciones</th>
-                    <th>Fecha Registro</th>
                     <th>Acciones</th>
-
                 </tr>
-
             </thead>
-
             <tbody>
-
                 {% for c in correspondencias %}
-
                 <tr>
-
-                    <td>{{ c.id }}</td>
-
                     <td>
-                        <span class="badge bg-primary">
-                            {{ c.hoja_ruta }}
-                        </span>
+                        {{ c.hoja_ruta }}
                     </td>
-
                     <td>{{ c.cite or '-' }}</td>
-
+                    <td>{{ c.fecha_documento.strftime('%d/%m/%Y') if c.fecha_documento else '-' }}</td>
                     <td>
-                        {{ c.fecha_documento.strftime('%d/%m/%Y') if c.fecha_documento else '-' }}
+                        <div style="min-width:180px;">
+                            {{ c.remitente }}
+                        </div>
                     </td>
-
-                    <td>{{ c.remitente }}</td>
-
-                    <td>{{ c.institucion_remitente or '-' }}</td>
-
                     <td>
-                        <div style="min-width:250px;">
+                        <div style="max-width:350px;">
                             {{ c.referencia }}
                         </div>
                     </td>
-
                     <td>
-                        <div style="min-width:250px;">
-                            {{ c.detalle or '-' }}
-                        </div>
-                    </td>
-
-                    <td>
-
-                        {% if c.prioridad == 'ALTA' %}
-                            <span class="badge bg-danger">ALTA</span>
-
+                        {% if c.prioridad == 'URGENTE' %}
+                            <span class="badge bg-dark">
+                                URGENTE
+                            </span>
+                        {% elif c.prioridad == 'ALTA' %}
+                            <span class="badge bg-danger">
+                                ALTA
+                            </span>
                         {% elif c.prioridad == 'MEDIA' %}
-                            <span class="badge bg-warning text-dark">MEDIA</span>
-
-                        {% elif c.prioridad == 'URGENTE' %}
-                            <span class="badge bg-dark">URGENTE</span>
-
+                            <span class="badge bg-warning text-dark">
+                                MEDIA
+                            </span>
                         {% else %}
-                            <span class="badge bg-success">BAJA</span>
+                            <span class="badge bg-success">
+                                BAJA
+                            </span>
                         {% endif %}
-
                     </td>
-
                     <td>
-
-                        {% if c.estado == 'RECIBIDO' %}
-
+                        {% if c.estado == 'FINALIZADO' %}
+                            <span class="badge bg-success">
+                                FINALIZADO
+                            </span>
+                        {% elif c.estado == 'EN PROCESO' %}
+                            <span class="badge bg-warning text-dark">
+                                EN PROCESO
+                            </span>
+                        {% elif c.estado == 'ASIGNADO' %}
+                            <span class="badge bg-primary">
+                                ASIGNADO
+                            </span>
+                        {% else %}
                             <span class="badge bg-info text-dark">
                                 {{ c.estado }}
                             </span>
-
-                        {% elif c.estado == 'ASIGNADO' %}
-
-                            <span class="badge bg-primary">
-                                {{ c.estado }}
-                            </span>
-
-                        {% elif c.estado == 'EN PROCESO' %}
-
-                            <span class="badge bg-warning text-dark">
-                                {{ c.estado }}
-                            </span>
-
-                        {% elif c.estado == 'FINALIZADO' %}
-
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if c.salidas %}
                             <span class="badge bg-success">
-                                {{ c.estado }}
-                            </span>
-
-                        {% elif c.estado == 'ARCHIVADO' %}
-
-                            <span class="badge bg-dark">
-                                ARCHIVADO
-                            </span>
-
-                        {% elif c.estado == 'ANULADO' %}
-
-                            <span class="badge bg-danger">
-                                ANULADO
-                            </span>
-
-                        {% else %}
-
-                            <span class="badge bg-secondary">
-                                {{ c.estado }}
-                            </span>
-
-                        {% endif %}
-
-                    </td>
-
-                    <td>{{ c.area_destino or '-' }}</td>
-
-                    <td>
-                        {{ c.fecha_limite.strftime('%d/%m/%Y') if c.fecha_limite else '-' }}
-                    </td>
-
-                    <td>
-
-                        {% if c.urgente %}
-                            <span class="badge bg-danger">
-                                SI
+                                RESPONDIDO
                             </span>
                         {% else %}
                             <span class="badge bg-secondary">
-                                NO
+                                PENDIENTE
                             </span>
                         {% endif %}
-
                     </td>
-
                     <td>
-
-                        {% if c.requiere_respuesta %}
-                            <span class="badge bg-warning text-dark">
-                                SI
-                            </span>
+                        {% if c.salidas and c.salidas[0].archivo %}
+                        <a
+                            href="{{ url_for('static', filename='uploads/' + c.salidas[0].archivo) }}"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                        </a>
                         {% else %}
-                            <span class="badge bg-secondary">
-                                NO
-                            </span>
+                        -
                         {% endif %}
-
                     </td>
-
                     <td>
-
                         {% if c.archivo %}
-
-                            <a href="{{ url_for('static', filename='uploads/' + c.archivo) }}"
-                                target="_blank"
-                                class="btn btn-sm btn-outline-primary">
-
-                                <i class="bi bi-file-earmark"></i>
-
-                            </a>
-
+                        <a
+                            href="{{ url_for('static', filename='uploads/' + c.archivo) }}"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                        </a>
                         {% else %}
-
-                            <span class="text-muted">-</span>
-
+                        -
                         {% endif %}
-
                     </td>
-
                     <td>
+                        <div class="d-flex gap-2">
 
-                        <div style="min-width:220px;">
-                            {{ c.observaciones or '-' }}
-                        </div>
-
-                    </td>
-
-                    <td>
-                        {{ c.fecha_registro.strftime('%d/%m/%Y %H:%M') if c.fecha_registro else '-' }}
-                    </td>
-
-                    <td>
-
-                        <div class="action-buttons">
-
+                            <!-- VER -->
                             <button
-                                class="btn btn-info btn-sm"
+                                class="btn btn-sm btn-light btn-ver-entrada"
                                 data-bs-toggle="modal"
-                                data-bs-target="#verModal{{ c.id }}">
-
+                                data-bs-target="#modalVerEntrada"
+                                data-hoja="{{ c.hoja_ruta }}"
+                                data-cite="{{ c.cite }}"
+                                data-remitente="{{ c.remitente }}"
+                                data-institucion="{{ c.institucion_remitente }}"
+                                data-referencia="{{ c.referencia }}"
+                                data-detalle="{{ c.detalle }}"
+                                data-prioridad="{{ c.prioridad }}"
+                                data-estado="{{ c.estado }}"
+                                data-area="{{ c.area_destino }}"
+                                data-observaciones="{{ c.observaciones }}">
                                 <i class="bi bi-eye-fill"></i>
-
                             </button>
 
+                            <!-- EDITAR -->
                             <button
-                                class="btn btn-warning btn-sm"
+                                class="btn btn-sm btn-light"
                                 data-bs-toggle="modal"
-                                data-bs-target="#editarModal{{ c.id }}">
-
+                                data-bs-target="#editarEntrada{{ c.id }}">
                                 <i class="bi bi-pencil-fill"></i>
-
                             </button>
 
+                            <!-- ELIMINAR -->
                             <form
                                 action="{{ url_for('dashboard.eliminar_entrada', id=c.id) }}"
                                 method="POST"
-                                class="form-eliminar">
-
+                                style="display:inline;">
                                 <button
                                     type="submit"
-                                    class="btn btn-danger btn-sm">
-
+                                    class="btn btn-sm btn-light"
+                                    onclick="return confirm('¿Eliminar correspondencia?')">
                                     <i class="bi bi-trash-fill"></i>
-
                                 </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+
+                <div
+                    class="modal fade"
+                    id="editarEntrada{{ c.id }}"
+                    tabindex="-1">
+
+                    <div class="modal-dialog modal-xl">
+
+                        <div class="modal-content">
+
+                            <form
+                                action="{{ url_for('dashboard.editar_entrada', id=c.id) }}"
+                                method="POST"
+                                enctype="multipart/form-data">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Editar Correspondencia de Entrada
+                                    </h5>
+
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal">
+                                    </button>
+                                </div>
+
+                                <div class="modal-body">
+
+                                    <div class="row">
+
+                                        <div class="col-md-4">
+                                            <label>Hoja Ruta</label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                name="hoja_ruta"
+                                                value="{{ c.hoja_ruta }}">
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label>CITE</label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                name="cite"
+                                                value="{{ c.cite }}">
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label>Fecha Documento</label>
+                                            <input
+                                                type="date"
+                                                class="form-control"
+                                                name="fecha_documento"
+                                                value="{{ c.fecha_documento }}">
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row mt-3">
+
+                                        <div class="col-md-6">
+                                            <label>Remitente</label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                name="remitente"
+                                                value="{{ c.remitente }}">
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Institución</label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                name="institucion_remitente"
+                                                value="{{ c.institucion_remitente }}">
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <label>Referencia</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="referencia"
+                                            value="{{ c.referencia }}">
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <label>Detalle</label>
+                                        <textarea
+                                            class="form-control"
+                                            rows="4"
+                                            name="detalle">{{ c.detalle }}</textarea>
+                                    </div>
+
+                                    <div class="row mt-3">
+
+                                        <div class="col-md-4">
+                                            <label>Prioridad</label>
+                                            <select
+                                                class="form-select"
+                                                name="prioridad">
+
+                                                <option value="BAJA"
+                                                {% if c.prioridad=='BAJA' %}selected{% endif %}>
+                                                BAJA
+                                                </option>
+
+                                                <option value="MEDIA"
+                                                {% if c.prioridad=='MEDIA' %}selected{% endif %}>
+                                                MEDIA
+                                                </option>
+
+                                                <option value="ALTA"
+                                                {% if c.prioridad=='ALTA' %}selected{% endif %}>
+                                                ALTA
+                                                </option>
+
+                                                <option value="URGENTE"
+                                                {% if c.prioridad=='URGENTE' %}selected{% endif %}>
+                                                URGENTE
+                                                </option>
+
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label>Estado</label>
+                                            <select
+                                                class="form-select"
+                                                name="estado">
+
+                                                <option value="RECIBIDO">RECIBIDO</option>
+                                                <option value="ASIGNADO">ASIGNADO</option>
+                                                <option value="EN PROCESO">EN PROCESO</option>
+                                                <option value="FINALIZADO">FINALIZADO</option>
+                                                <option value="ARCHIVADO">ARCHIVADO</option>
+
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label>Área Destino</label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                name="area_destino"
+                                                value="{{ c.area_destino }}">
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row mt-3">
+
+                                        <div class="col-md-6">
+                                            <label>Fecha Límite</label>
+                                            <input
+                                                type="date"
+                                                class="form-control"
+                                                name="fecha_limite"
+                                                value="{{ c.fecha_limite }}">
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label>Nuevo Archivo</label>
+                                            <input
+                                                type="file"
+                                                class="form-control"
+                                                name="archivo">
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row mt-3">
+
+                                        <div class="col-md-6">
+
+                                            <div class="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    class="form-check-input"
+                                                    name="urgente"
+                                                    {% if c.urgente %}checked{% endif %}>
+
+                                                <label class="form-check-label">
+                                                    Urgente
+                                                </label>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-md-6">
+
+                                            <div class="form-check">
+                                                <input
+                                                    type="checkbox"
+                                                    class="form-check-input"
+                                                    name="requiere_respuesta"
+                                                    {% if c.requiere_respuesta %}checked{% endif %}>
+
+                                                <label class="form-check-label">
+                                                    Requiere Respuesta
+                                                </label>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <label>Observaciones</label>
+                                        <textarea
+                                            class="form-control"
+                                            name="observaciones">{{ c.observaciones }}</textarea>
+                                    </div>
+
+                                </div>
+
+                                <div class="modal-footer">
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal">
+                                        Cancelar
+                                    </button>
+
+                                    <button class="btn-primary-custom" type="submit">
+
+                                        Guardar Cambios
+                                    </button>
+
+                                </div>
 
                             </form>
 
                         </div>
 
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-
-{% for c in correspondencias %}
-
-<div class="modal fade" id="verModal{{ c.id }}" tabindex="-1">
-
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-
-        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-
-            <div class="modal-header bg-dark text-white py-4">
-
-                <div>
-
-                    <h4 class="modal-title fw-bold mb-1">
-
-                        <i class="bi bi-file-earmark-text-fill"></i>
-                        Detalle de Correspondencia
-
-                    </h4>
-
-                    <small class="text-light opacity-75">
-                        Información institucional registrada
-                    </small>
+                    </div>
 
                 </div>
 
+                <div class="modal fade" id="modalVerEntrada" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    Detalle de Correspondencia de Entrada
+                                </h5>
+
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal">
+                                </button>
+                            </div>
+
+                            <div class="modal-body">
+
+                                <p><strong>Hoja Ruta:</strong>
+                                    <span id="e_hoja"></span>
+                                </p>
+
+                                <p><strong>CITE:</strong>
+                                    <span id="e_cite"></span>
+                                </p>
+
+                                <p><strong>Remitente:</strong>
+                                    <span id="e_remitente"></span>
+                                </p>
+
+                                <p><strong>Institución:</strong>
+                                    <span id="e_institucion"></span>
+                                </p>
+
+                                <p><strong>Referencia:</strong>
+                                    <span id="e_referencia"></span>
+                                </p>
+
+                                <p><strong>Detalle:</strong></p>
+
+                                <div class="alert alert-light" id="e_detalle"></div>
+
+                                <p><strong>Estado:</strong>
+                                    <span id="e_estado"></span>
+                                </p>
+
+                                <p><strong>Prioridad:</strong>
+                                    <span id="e_prioridad"></span>
+                                </p>
+
+                                <p><strong>Área Destino:</strong>
+                                    <span id="e_area"></span>
+                                </p>
+
+                                <p><strong>Observaciones:</strong>
+                                    <span id="e_observaciones"></span>
+                                </p>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+{% for c in correspondencias %}
+<div class="modal fade" id="verModal{{ c.id }}" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-dark text-white py-4">
+                <div>
+                    <h4 class="modal-title fw-bold mb-1">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                        Detalle de Correspondencia
+                    </h4>
+                    <small class="text-light opacity-75">
+                        Información institucional registrada
+                    </small>
+                </div>
                 <button
                     type="button"
                     class="btn-close btn-close-white"
                     data-bs-dismiss="modal">
                 </button>
-
             </div>
-
             <div class="modal-body p-4">
-
                 <div class="row g-4">
-
                     <div class="col-md-4">
-
                         <div class="card border-0 shadow-sm rounded-4 h-100">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Hoja de Ruta
                                 </label>
-
                                 <h5 class="fw-bold text-primary">
                                     {{ c.hoja_ruta }}
                                 </h5>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-4">
-
                         <div class="card border-0 shadow-sm rounded-4 h-100">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     CITE
                                 </label>
-
                                 <h6 class="fw-semibold">
                                     {{ c.cite or '-' }}
                                 </h6>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-4">
-
                         <div class="card border-0 shadow-sm rounded-4 h-100">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Fecha Documento
                                 </label>
-
                                 <h6>
                                     {{ c.fecha_documento.strftime('%d/%m/%Y') if c.fecha_documento else '-' }}
                                 </h6>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-6">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Remitente
                                 </label>
-
                                 <h6 class="fw-semibold">
                                     {{ c.remitente }}
                                 </h6>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-6">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Institución
                                 </label>
-
                                 <h6 class="fw-semibold">
                                     {{ c.institucion_remitente or '-' }}
                                 </h6>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-12">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Referencia
                                 </label>
-
                                 <p class="mb-0 fw-semibold">
                                     {{ c.referencia }}
                                 </p>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-12">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Detalle
                                 </label>
-
                                 <p class="mb-0">
                                     {{ c.detalle or '-' }}
                                 </p>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-3">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body text-center">
-
                                 <label class="text-muted small d-block mb-2">
                                     Prioridad
                                 </label>
-
                                 <span class="badge bg-danger px-4 py-2 rounded-pill">
                                     {{ c.prioridad }}
                                 </span>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-3">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body text-center">
-
                                 <label class="text-muted small d-block mb-2">
                                     Estado
                                 </label>
-
                                 <span class="badge bg-primary px-4 py-2 rounded-pill">
                                     {{ c.estado }}
                                 </span>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-3">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body text-center">
-
                                 <label class="text-muted small d-block mb-2">
                                     Urgente
                                 </label>
-
                                 <span class="badge bg-warning text-dark px-4 py-2 rounded-pill">
-
                                     {{ 'SI' if c.urgente else 'NO' }}
-
                                 </span>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-3">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body text-center">
-
                                 <label class="text-muted small d-block mb-2">
                                     Respuesta
                                 </label>
-
                                 <span class="badge bg-success px-4 py-2 rounded-pill">
-
                                     {{ 'SI' if c.requiere_respuesta else 'NO' }}
-
                                 </span>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-6">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Área Destino
                                 </label>
-
                                 <h6>{{ c.area_destino or '-' }}</h6>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-6">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Fecha Límite
                                 </label>
-
                                 <h6>
-
                                     {{ c.fecha_limite.strftime('%d/%m/%Y') if c.fecha_limite else '-' }}
-
                                 </h6>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-12">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Observaciones
                                 </label>
-
                                 <p class="mb-0">
                                     {{ c.observaciones or '-' }}
                                 </p>
-
                             </div>
-
                         </div>
-
                     </div>
-
+                    <hr>
+                    <h5 class="fw-bold text-primary">
+                        <i class="bi bi-reply-fill"></i>
+                        Respuestas Generadas
+                    </h5>
+                    {% if c.salidas %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>CITE</th>
+                                    <th>Destinatario</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Envío</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in c.salidas %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            {{ s.cite }}
+                                        </span>
+                                    </td>
+                                    <td>{{ s.destinatario }}</td>
+                                    <td>
+                                        {% if s.estado == 'ENVIADO' %}
+                                            <span class="badge bg-success">
+                                                ENVIADO
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">
+                                                {{ s.estado }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ s.fecha_envio.strftime('%d/%m/%Y') if s.fecha_envio else '-' }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning border-0 shadow-sm">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Esta correspondencia aún no tiene respuestas registradas.
+                    </div>
+                    {% endif %}
                     <div class="col-md-6">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Archivo
                                 </label>
-
                                 <div class="mt-2">
-
                                     {% if c.archivo %}
-
                                     <a
                                         href="{{ url_for('static', filename='uploads/' + c.archivo) }}"
                                         target="_blank"
                                         class="btn btn-outline-primary rounded-pill">
-
                                         <i class="bi bi-file-earmark-arrow-down-fill"></i>
                                         Ver Archivo
-
                                     </a>
-
                                     {% else %}
-
                                     <span class="text-muted">
                                         Sin archivo adjunto
                                     </span>
-
                                     {% endif %}
-
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     <div class="col-md-6">
-
                         <div class="card border-0 shadow-sm rounded-4">
-
                             <div class="card-body">
-
                                 <label class="text-muted small">
                                     Fecha Registro
                                 </label>
-
                                 <h6>
-
                                     {{ c.fecha_registro.strftime('%d/%m/%Y %H:%M') if c.fecha_registro else '-' }}
-
                                 </h6>
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 <!-- MODAL EDITAR -->
@@ -1138,9 +1209,7 @@ Correspondencia Entrada
 
                     </button>
 
-                    <button
-                        type="submit"
-                        class="btn btn-warning rounded-pill px-5 fw-semibold shadow-sm">
+                    <button class="btn-primary-custom" type="submit">
 
                         <i class="bi bi-save-fill"></i>
                         Guardar Cambios
@@ -1569,6 +1638,49 @@ document.querySelectorAll('.form-eliminar').forEach(form => {
     })
 
 })
+
+</script>
+
+<script>
+
+document.querySelectorAll('.btn-ver-entrada')
+.forEach(btn => {
+
+    btn.addEventListener('click', function() {
+
+        document.getElementById('e_hoja').textContent =
+            this.dataset.hoja || '';
+
+        document.getElementById('e_cite').textContent =
+            this.dataset.cite || '';
+
+        document.getElementById('e_remitente').textContent =
+            this.dataset.remitente || '';
+
+        document.getElementById('e_institucion').textContent =
+            this.dataset.institucion || '';
+
+        document.getElementById('e_referencia').textContent =
+            this.dataset.referencia || '';
+
+        document.getElementById('e_detalle').textContent =
+            this.dataset.detalle || '';
+
+        document.getElementById('e_estado').textContent =
+            this.dataset.estado || '';
+
+        document.getElementById('e_prioridad').textContent =
+            this.dataset.prioridad || '';
+
+        document.getElementById('e_area').textContent =
+            this.dataset.area || '';
+
+        document.getElementById('e_observaciones').textContent =
+            this.dataset.observaciones || '';
+
+    });
+
+});
 
 </script>
 

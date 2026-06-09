@@ -1,558 +1,762 @@
 {% extends 'layouts/base.html' %}
-
 {% block title %}
 Correspondencia Salida
 {% endblock %}
-
 {% block content %}
-
 <div class="dashboard-header">
-
     <div>
         <h1>Correspondencia de Salida</h1>
         <p>Control institucional de documentos enviados</p>
     </div>
-
     <button class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#modalNuevaSalida">
-
         <i class="bi bi-plus-circle-fill"></i>
         Nueva Salida
-
     </button>
-
 </div>
-
-
 <div class="kpi-grid">
-
     <div class="kpi-card">
-
         <div class="kpi-icon blue">
             <i class="bi bi-send-fill"></i>
         </div>
-
         <span class="kpi-label">Documentos Enviados</span>
-
-        <h3>985</h3>
-
+        <h3>{{ total_enviados }}</h3>
         <p>Correspondencia registrada</p>
-
     </div>
-
-
     <div class="kpi-card">
-
         <div class="kpi-icon green">
             <i class="bi bi-check-circle-fill"></i>
         </div>
-
         <span class="kpi-label">Entregados</span>
-
-        <h3>843</h3>
-
+        <h3>{{ total_entregados }}</h3>
         <p>Recepción confirmada</p>
-
     </div>
-
-
     <div class="kpi-card">
-
         <div class="kpi-icon orange">
             <i class="bi bi-clock-fill"></i>
         </div>
-
         <span class="kpi-label">Pendientes</span>
-
-        <h3>96</h3>
-
-        <p>Esperando confirmación</p>
-
+        <h3>{{ total_pendientes }}</h3>
     </div>
-
-
     <div class="kpi-card">
-
         <div class="kpi-icon red">
             <i class="bi bi-exclamation-circle-fill"></i>
         </div>
-
         <span class="kpi-label">Urgentes</span>
-
-        <h3>12</h3>
-
+        <h3>{{ total_urgentes }}</h3>
         <p>Prioridad alta</p>
-
     </div>
-
 </div>
-
-
 <div class="table-container">
-
     <div class="table-header">
-
         <h4>Correspondencia Enviada</h4>
-
         <div class="d-flex gap-2">
-
-            <button class="btn btn-light">
-
+            <button class="btn btn-light"
+                    onclick="window.location.href='{{ url_for('dashboard.reporte_salida_pdf') }}'">
                 <i class="bi bi-file-earmark-pdf-fill"></i>
-
             </button>
-
-            <button class="btn btn-light">
-
+            <button class="btn btn-light"
+                    onclick="window.location.href='{{ url_for('dashboard.reporte_salida_excel') }}'">
                 <i class="bi bi-file-earmark-excel-fill"></i>
-
             </button>
-
         </div>
-
     </div>
-
-
     <div class="table-responsive">
-
         <table class="table custom-table align-middle">
-
             <thead>
-
                 <tr>
-
-                    <th>Hoja Ruta</th>
-                    <th>CITE</th>
+                    <th>HR Entrada</th>
+                    <th>CITE Entrada</th>
+                    <th>HR Salida</th>
+                    <th>CITE Respuesta</th>
                     <th>Destinatario</th>
-                    <th>Institución</th>
                     <th>Referencia</th>
                     <th>Estado</th>
                     <th>Entrega</th>
-                    <th>Fecha</th>
+                    <th>Archivo Entrada</th>
+                    <th>Respuesta</th>
+                    <th>Fecha Envío</th>
                     <th>Acciones</th>
-
                 </tr>
-
             </thead>
-
             <tbody>
-
-                {% for c in correspondencias %}
-
-                <tr>
-
-                    <td>{{ c.hoja_ruta }}</td>
-                    <td>{{ c.cite }}</td>
-                    <td>{{ c.destinatario }}</td>
-                    <td>{{ c.institucion_destino }}</td>
-                    <td>{{ c.referencia }}</td>
-
-                    <td>
-                        <span class="badge bg-primary">
-                            {{ c.estado }}
-                        </span>
-                    </td>
-
-                    <td>
-                        <span class="badge bg-success">
-                            {{ c.entrega }}
-                        </span>
-                    </td>
-
-                    <td>{{ c.fecha_registro.strftime('%d/%m/%Y') }}</td>
-
-                    <td>
-
-                        <div class="d-flex gap-2">
-
-                            <button class="btn btn-sm btn-light">
-
-                                <i class="bi bi-eye-fill"></i>
-
-                            </button>
-
-                            <button class="btn btn-sm btn-light">
-
-                                <i class="bi bi-pencil-fill"></i>
-
-                            </button>
-
-                            <button class="btn btn-sm btn-light">
-
+            {% for c in correspondencias %}
+            <tr>
+                <td>
+                    {{ c.entrada.hoja_ruta if c.entrada else '-' }}
+                </td>
+                <td>
+                    {{ c.entrada.cite if c.entrada else '-' }}
+                </td>
+                <td>
+                    {{ c.hoja_ruta }}
+                </td>
+                <td>
+                    {{ c.cite }}
+                </td>
+                <td>
+                    {{ c.destinatario }}
+                </td>
+                <td>
+                    {{ c.referencia }}
+                </td>
+                <td>
+                    {% if c.estado == 'ENTREGADO' %}
+                    <span class="badge bg-success">
+                        {{ c.estado }}
+                    </span>
+                    {% elif c.estado == 'PENDIENTE' %}
+                    <span class="badge bg-warning text-dark">
+                        {{ c.estado }}
+                    </span>
+                    {% else %}
+                    <span class="badge bg-primary">
+                        {{ c.estado }}
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if c.confirmado %}
+                    <span class="badge bg-success">
+                        Confirmada
+                    </span>
+                    {% else %}
+                    <span class="badge bg-secondary">
+                        Pendiente
+                    </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if c.entrada and c.entrada.archivo %}
+                    <a
+                        href="{{ url_for('static', filename='uploads/' + c.entrada.archivo) }}"
+                        target="_blank"
+                        class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                    </a>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if c.archivo %}
+                    <a
+                        href="{{ url_for('static', filename='uploads/' + c.archivo) }}"
+                        target="_blank"
+                        class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                    </a>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>
+                    {% if c.fecha_envio %}
+                        {{ c.fecha_envio.strftime('%d/%m/%Y') }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button
+                            class="btn btn-sm btn-light btn-ver"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalVerSalida"
+                            data-hoja="{{ c.hoja_ruta }}"
+                            data-cite="{{ c.cite }}"
+                            data-destinatario="{{ c.destinatario }}"
+                            data-institucion="{{ c.institucion_destino }}"
+                            data-referencia="{{ c.referencia }}"
+                            data-detalle="{{ c.detalle }}"
+                            data-estado="{{ c.estado }}"
+                            data-prioridad="{{ c.prioridad }}">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                        <button
+                            class="btn btn-sm btn-light"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editarSalida{{ c.id }}">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <form
+                            action="{{ url_for('dashboard.eliminar_salida', id=c.id) }}"
+                            method="POST"
+                            style="display:inline;">
+                            <button
+                                type="submit"
+                                class="btn btn-sm btn-light"
+                                onclick="return confirm('¿Eliminar correspondencia?')">
                                 <i class="bi bi-trash-fill"></i>
-
                             </button>
-
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <div class="modal fade" id="modalVerSalida" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                Detalle de Correspondencia
+                            </h5>
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal">
+                            </button>
                         </div>
+                        <div class="modal-body">
+                            <p><strong>Hoja Ruta:</strong> <span id="v_hoja"></span></p>
+                            <p><strong>CITE:</strong> <span id="v_cite"></span></p>
+                            <p><strong>Destinatario:</strong> <span id="v_destinatario"></span></p>
+                            <p><strong>Institución:</strong> <span id="v_institucion"></span></p>
+                            <p><strong>Referencia:</strong> <span id="v_referencia"></span></p>
+                            <p><strong>Detalle:</strong></p>
+                            <div class="alert alert-light" id="v_detalle"></div>
+                            <p><strong>Estado:</strong> <span id="v_estado"></span></p>
+                            <p><strong>Prioridad:</strong> <span id="v_prioridad"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="modal fade"
+                id="editarSalida{{ c.id }}"
+                tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <form
+                            action="{{ url_for('dashboard.editar_salida', id=c.id) }}"
+                            method="POST"
+                            enctype="multipart/form-data">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    Editar Correspondencia de Salida
+                                </h5>
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>
+                                            Hoja Ruta Salida
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="hoja_ruta"
+                                            value="{{ c.hoja_ruta }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>
+                                            CITE Respuesta
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="cite"
+                                            value="{{ c.cite }}">
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <label>
+                                            Destinatario
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="destinatario"
+                                            value="{{ c.destinatario }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>
+                                            Institución Destino
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="institucion_destino"
+                                            value="{{ c.institucion_destino }}">
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <label>
+                                        Referencia
+                                    </label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="referencia"
+                                        value="{{ c.referencia }}">
+                                </div>
+                                <div class="mt-3">
+                                    <label>
+                                        Detalle
+                                    </label>
+                                    <textarea
+                                        class="form-control"
+                                        name="detalle"
+                                        rows="4">{{ c.detalle }}</textarea>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-4">
+                                        <label>
+                                            Prioridad
+                                        </label>
+                                        <select
+                                            class="form-select"
+                                            name="prioridad">
+                                            <option
+                                                value="BAJA"
+                                                {% if c.prioridad == 'BAJA' %}selected{% endif %}>
+                                                BAJA
+                                            </option>
+                                            <option
+                                                value="MEDIA"
+                                                {% if c.prioridad == 'MEDIA' %}selected{% endif %}>
+                                                MEDIA
+                                            </option>
+                                            <option
+                                                value="ALTA"
+                                                {% if c.prioridad == 'ALTA' %}selected{% endif %}>
+                                                ALTA
+                                            </option>
+                                            <option
+                                                value="URGENTE"
+                                                {% if c.prioridad == 'URGENTE' %}selected{% endif %}>
+                                                URGENTE
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>
+                                            Estado
+                                        </label>
+                                        <select
+                                            class="form-select"
+                                            name="estado">
+                                            <option
+                                                value="ENVIADO"
+                                                {% if c.estado == 'ENVIADO' %}selected{% endif %}>
+                                                ENVIADO
+                                            </option>
+                                            <option
+                                                value="PENDIENTE"
+                                                {% if c.estado == 'PENDIENTE' %}selected{% endif %}>
+                                                PENDIENTE
+                                            </option>
+                                            <option
+                                                value="ENTREGADO"
+                                                {% if c.estado == 'ENTREGADO' %}selected{% endif %}>
+                                                ENTREGADO
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>
+                                            Medio Envío
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="medio_envio"
+                                            value="{{ c.medio_envio }}">
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <label>
+                                            Fecha Entrega
+                                        </label>
+                                        <input
+                                            type="date"
+                                            class="form-control"
+                                            name="fecha_entrega"
+                                            value="{{ c.fecha_entrega }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>
+                                            Recibido Por
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="recibido_por"
+                                            value="{{ c.recibido_por }}">
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-md-6">
+                                            <label>
+                                                Número de Guía
+                                            </label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                name="numero_guia"
+                                                value="{{ c.numero_guia }}">
+                                        </div>
 
-                    </td>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <div class="form-check">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    name="confirmado"
+                                                    value="1"
+                                                    {% if c.confirmado %}checked{% endif %}>
 
-                </tr>
+                                                <label class="form-check-label">
+                                                    Confirmar Entrega
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
 
-                {% endfor %}
+                                    <div class="col-md-6">
+                                        <label>
+                                            Reemplazar Documento
+                                        </label>
+                                        <input
+                                            type="file"
+                                            class="form-control"
+                                            name="archivo_adjunto"
+                                            accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+                                        <small class="text-muted">
+                                            Dejar vacío para conservar el archivo actual.
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <label>
+                                        Observaciones
+                                    </label>
+                                    <textarea
+                                        class="form-control"
+                                        name="observaciones">{{ c.observaciones }}</textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal">
+                                    Cancelar
+                                </button>
+                                <button class="btn-primary-custom" type="submit">
 
+                                    Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
             </tbody>
-
         </table>
-
     </div>
-
 </div>
-
-
-
 <div class="modal fade" id="modalNuevaSalida" tabindex="-1">
-
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-
         <div class="modal-content">
-
             <div class="modal-header">
-
                 <div>
-
                     <h4 class="modal-title">
                         Nueva Correspondencia de Salida
                     </h4>
-
                     <p class="text-muted mb-0">
                         Registro institucional de documentos enviados
                     </p>
-
                 </div>
-
                 <button class="btn-close" data-bs-dismiss="modal"></button>
-
             </div>
-
             <div class="modal-body">
-
                 <form
                     action="{{ url_for('dashboard.guardar_salida') }}"
-                    method="POST"
-                >
-
+                    method="POST" enctype="multipart/form-data">
                     <div class="row">
-
-                        <div class="col-lg-4">
-
+                        <div class="col-lg-12">
                             <div class="form-group">
-
+                                <label class="form-label fw-bold">
+                                    Documento de Entrada
+                                </label>
+                                <select
+                                    id="entrada_id"
+                                    class="form-control-custom"
+                                    name="entrada_id"
+                                    required>
+                                    <option value="">
+                                        Seleccione una entrada
+                                    </option>
+                                    {% for e in entradas %}
+                                    <option
+                                        value="{{ e.id }}"
+                                        data-hoja="{{ e.hoja_ruta }}"
+                                        data-cite="{{ e.cite }}"
+                                        data-referencia="{{ e.referencia }}"
+                                        data-detalle="{{ e.detalle }}"
+                                        data-prioridad="{{ e.prioridad }}"
+                                        data-archivo="{{ e.archivo }}"> 
+                                        {{ e.hoja_ruta }}
+                                        |
+                                        {{ e.remitente }}
+                                        |
+                                        {{ e.referencia }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div id="archivoOriginal" class="mt-3"></div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
                                 <label class="form-label">
                                     Hoja de Ruta
                                 </label>
-
-                                <input type="text" class="form-control-custom" name="hoja_ruta" placeholder="HS-2026-001">
-
+                                <input
+                                type="text"
+                                id="hoja_ruta"
+                                class="form-control-custom"
+                                name="hoja_ruta"
+                                placeholder="HS-2026-001">
                             </div>
-
                         </div>
-
                         <div class="col-lg-4">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     CITE
                                 </label>
-
-                                <input type="text" class="form-control-custom" name="cite" placeholder="CITE-001">
-
+                                <input
+                                type="text"
+                                id="cite"
+                                class="form-control-custom"
+                                name="cite">
                             </div>
-
                         </div>
-
                         <div class="col-lg-4">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Fecha Envío
                                 </label>
-
                                 <input type="date" class="form-control-custom" name="fecha_envio">
-
                             </div>
-
                         </div>
-
                     </div>
-
-
-
                     <div class="row">
-
                         <div class="col-lg-6">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Destinatario
                                 </label>
-
                                 <input type="text" class="form-control-custom" name="destinatario" placeholder="Nombre destinatario">
-
                             </div>
-
                         </div>
-
                         <div class="col-lg-6">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Institución Destino
                                 </label>
-
                                 <input type="text" class="form-control-custom" name="institucion_destino" placeholder="Institución destino">
-
                             </div>
-
                         </div>
-
                     </div>
-
-
-
                     <div class="row">
-
                         <div class="col-lg-12">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Referencia
                                 </label>
-
-                                <input type="text" class="form-control-custom" name="referencia" placeholder="Referencia del documento">
-
+                                <input
+                                type="text"
+                                id="referencia"
+                                class="form-control-custom"
+                                name="referencia">
                             </div>
-
                         </div>
-
                     </div>
-
-
-
                     <div class="row">
-
                         <div class="col-lg-12">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Detalle
                                 </label>
-
-                                <textarea class="form-control-custom" name="detalle" placeholder="Detalle institucional"></textarea>
-
+                                <textarea
+                                    id="detalle"
+                                    class="form-control-custom"
+                                    name="detalle">
+                                </textarea>
                             </div>
-
                         </div>
-
                     </div>
-
-
-
                     <div class="row">
-
                         <div class="col-lg-4">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Prioridad
                                 </label>
-
-                                <select class="form-control-custom" name="prioridad">
-
-                                    <option>Seleccione</option>
+                                <select
+                                id="prioridad"
+                                class="form-control-custom"
+                                name="prioridad">
                                     <option>BAJA</option>
                                     <option>MEDIA</option>
                                     <option>ALTA</option>
                                     <option>URGENTE</option>
-
                                 </select>
-
                             </div>
-
                         </div>
-
-
                         <div class="col-lg-4">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Estado
                                 </label>
-
                                 <select class="form-control-custom" name="estado">
-
                                     <option>ENVIADO</option>
                                     <option>PENDIENTE</option>
                                     <option>ENTREGADO</option>
-
                                 </select>
-
                             </div>
-
                         </div>
-
-
                         <div class="col-lg-4">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Medio de Envío
                                 </label>
-
                                 <select class="form-control-custom" name="medio_envio">
-
                                     <option>Mensajería</option>
                                     <option>Courier</option>
                                     <option>Correo Electrónico</option>
                                     <option>Entrega Física</option>
-
                                 </select>
-
                             </div>
-
                         </div>
-
                     </div>
-
-
-
                     <div class="row">
-
                         <div class="col-lg-6">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Número de Guía
                                 </label>
-
                                 <input type="text" class="form-control-custom" name="numero_guia" placeholder="Número guía">
-
                             </div>
-
                         </div>
-
-
                         <div class="col-lg-6">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Adjuntar Documento
                                 </label>
-
                                 <input type="file" class="form-control-custom" name="archivo_adjunto">
-
                             </div>
-
                         </div>
-
                     </div>
-
-
-
                     <div class="row">
-
                         <div class="col-lg-4">
-
                             <div class="form-group">
-
-                                <label class="form-label">
-                                    Fecha Entrega
-                                </label>
-
-                                <input type="date" class="form-control-custom" name="fecha_entrega">
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="col-lg-4">
-
-                            <div class="form-group">
-
                                 <label class="form-label">
                                     Recibido Por
                                 </label>
-
                                 <input type="text" class="form-control-custom" name="recibido_por" placeholder="Nombre receptor">
-
                             </div>
-
                         </div>
-
-
                         <div class="col-lg-4 d-flex align-items-center">
-
                             <div class="form-check mt-4">
-
-                                <input class="form-check-input" type="checkbox" name="confirmar_entrega">
-
+                                <input class="form-check-input" type="checkbox" name="entrega_confirmada">
                                 <label class="form-check-label">
                                     Confirmar entrega
                                 </label>
-
                             </div>
-
                         </div>
-
                     </div>
-
-
-
                     <div class="row mt-3">
-
                         <div class="col-lg-12">
-
                             <div class="form-group">
-
                                 <label class="form-label">
                                     Observaciones
                                 </label>
-
                                 <textarea class="form-control-custom" name="observaciones" placeholder="Observaciones institucionales"></textarea>
-
                             </div>
-
                         </div>
-
                         <div class="modal-footer">
-
-                            <button class="btn btn-light" data-bs-dismiss="modal">
-
+                            <button
+                                type="button"
+                                class="btn btn-light"
+                                data-bs-dismiss="modal">
                                 Cancelar
-
                             </button>
-
                             <button class="btn-primary-custom" type="submit">
-
                                 <i class="bi bi-save-fill"></i>
-                                Correspondencia
-
+                                Responder y Guardar
                             </button>
-
                         </div>
-
                     </div>
-
                 </form>
-
             </div>
-
-
         </div>
-
     </div>
-
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const entrada = document.getElementById('entrada_id');
+    entrada.addEventListener('change', function() {
+        const opcion = this.options[this.selectedIndex];
+        document.getElementById('cite').value =
+            opcion.dataset.cite || '';
+        document.getElementById('referencia').value =
+            opcion.dataset.referencia || '';
+        document.getElementById('detalle').value =
+            opcion.dataset.detalle || '';
+        document.getElementById('prioridad').value =
+            opcion.dataset.prioridad || '';
+        const archivo = opcion.dataset.archivo;
+        if (archivo) {
+            document.getElementById('archivoOriginal').innerHTML = `
+                <div class="alert alert-info d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                        Documento recibido adjunto
+                    </div>
+                    <a
+                        href="/static/uploads/${archivo}"
+                        target="_blank"
+                        class="btn btn-primary btn-sm">
+                        Ver Documento
+                    </a>
+                </div>
+            `;
+        } else {
+            document.getElementById('archivoOriginal').innerHTML = '';
+        }
+    });
+});
+</script>
+<script>
+document.querySelectorAll('.btn-ver').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.getElementById('v_hoja').textContent =
+            this.dataset.hoja;
+        document.getElementById('v_cite').textContent =
+            this.dataset.cite;
+        document.getElementById('v_destinatario').textContent =
+            this.dataset.destinatario;
+        document.getElementById('v_institucion').textContent =
+            this.dataset.institucion;
+        document.getElementById('v_referencia').textContent =
+            this.dataset.referencia;
+        document.getElementById('v_detalle').textContent =
+            this.dataset.detalle;
+        document.getElementById('v_estado').textContent =
+            this.dataset.estado;
+        document.getElementById('v_prioridad').textContent =
+            this.dataset.prioridad;
+    });
+});
 
+</script>
 {% endblock %}

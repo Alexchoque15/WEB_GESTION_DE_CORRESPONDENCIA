@@ -15,14 +15,14 @@
             <span class="notification-dot"></span>
         </button>
 
-        <div class="user-box">
+        <div class="user-box" onclick="location.href='{{ url_for('usuario.perfil') }}'" style="cursor:pointer;">
             <div class="avatar">
                 JL
             </div>
 
             <div>
-                <h6>Administrador</h6>
-                <span>Online</span>
+                <h6>{{ current_user.nombre }}</h6>
+                <span>{{ current_user.rol }}</span>
             </div>
         </div>
 

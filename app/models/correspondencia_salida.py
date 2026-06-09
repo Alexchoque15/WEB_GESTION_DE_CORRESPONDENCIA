@@ -2,62 +2,39 @@ from datetime import datetime
 
 from app import db
 
-
 class CorrespondenciaSalida(db.Model):
 
     __tablename__ = 'correspondencia_salida'
 
     id = db.Column(db.Integer, primary_key=True)
 
-    hoja_ruta = db.Column(
-        db.String(50),
-        unique=True,
-        nullable=False
-    )
+    hoja_ruta = db.Column(db.String(50), unique=True, nullable=False)
 
     cite = db.Column(db.String(100))
 
-    destinatario = db.Column(
-        db.String(255),
-        nullable=False
-    )
+    destinatario = db.Column(db.String(255), nullable=False)
 
-    institucion_destino = db.Column(
-        db.String(255)
-    )
+    institucion_destino = db.Column(db.String(255))
 
-    referencia = db.Column(
-        db.String(500),
-        nullable=False
-    )
+    referencia = db.Column(db.String(500), nullable=False)
 
     detalle = db.Column(db.Text)
 
-    prioridad = db.Column(
-        db.String(30),
-        default='MEDIA'
-    )
+    prioridad = db.Column(db.String(30), default='MEDIA')
 
-    estado = db.Column(
-        db.String(50),
-        default='ENVIADO'
-    )
-
-    medio_envio = db.Column(
-        db.String(100)
-    )
-
-    numero_guia = db.Column(
-        db.String(100)
-    )
+    estado = db.Column(db.String(50), default='ENVIADO')
 
     fecha_envio = db.Column(db.Date)
 
+    medio_envio = db.Column(db.String(100))
+
+    numero_guia = db.Column(db.String(100))
+
+    archivo = db.Column(db.String(255))
+
     fecha_entrega = db.Column(db.Date)
 
-    recibido_por = db.Column(
-        db.String(255)
-    )
+    recibido_por = db.Column(db.String(255))
 
     confirmado = db.Column(
         db.Boolean,
@@ -66,8 +43,6 @@ class CorrespondenciaSalida(db.Model):
 
     observaciones = db.Column(db.Text)
 
-    archivo = db.Column(db.String(255))
-
     fecha_registro = db.Column(
         db.DateTime,
         default=datetime.utcnow
@@ -75,13 +50,17 @@ class CorrespondenciaSalida(db.Model):
 
     usuario_id = db.Column(
         db.Integer,
-        db.ForeignKey('usuarios.id'),
+        db.ForeignKey('usuarios.id')
     )
 
-    adjuntos = db.relationship(
-        'Adjunto',
-        backref='salida_adjunto',
-        lazy=True
+    entrada_id = db.Column(
+        db.Integer,
+        db.ForeignKey('correspondencia_entrada.id')
+    )
+
+    activo = db.Column(
+        db.Boolean,
+        default=True
     )
 
     def __repr__(self):

@@ -1,0 +1,396 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}
+Usuarios
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-hero mb-4">
+    <div>
+        <h1>
+            <i class="bi bi-people-fill"></i>
+            Administración de Usuarios
+        </h1>
+        <p>
+            Gestión de cuentas, roles y accesos
+            del sistema de correspondencia
+        </p>
+    </div>
+    <button
+        class="btn btn-light btn-lg"
+        data-bs-toggle="modal"
+        data-bs-target="#modalUsuario">
+        <i class="bi bi-person-plus-fill"></i>
+        Nuevo Usuario
+    </button>
+</div>
+
+<div class="table-container">
+
+    <div class="table-header">
+
+        <h4>
+        
+        Usuarios Registrados
+        </h4>
+
+    </div>
+
+    <div
+        class="table-responsive"
+        style="overflow-x:auto;">
+
+        <table
+            class="table custom-table align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Nombre Completo</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for u in usuarios %}
+
+                <tr>
+
+                    <td>
+                        {{ u.id }}
+                    </td>
+
+                    <td>
+
+                        <div class="fw-semibold">
+                            {{ u.usuario }}
+                        </div>
+
+                    </td>
+
+                    <td>
+
+                        {{ u.nombres }}
+                        {{ u.apellidos }}
+
+                    </td>
+
+                    <td>
+
+                        {{ u.correo }}
+
+                    </td>
+
+                    <td>
+
+                        {% if u.rol == 'ADMINISTRADOR' %}
+
+                        <span class="badge bg-danger">
+                            Administrador
+                        </span>
+
+                        {% elif u.rol == 'RECEPCION' %}
+
+                        <span class="badge bg-info">
+                            Recepción
+                        </span>
+
+                        {% elif u.rol == 'PERSONAL' %}
+
+                        <span class="badge bg-success">
+                            Personal
+                        </span>
+
+                        {% elif u.rol == 'MENSAJERIA' %}
+
+                        <span class="badge bg-warning text-dark">
+                            Mensajería
+                        </span>
+
+                        {% elif u.rol == 'ARCHIVO' %}
+
+                        <span class="badge bg-secondary">
+                            Archivo
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if u.estado %}
+
+                        <span class="badge bg-success">
+                            Activo
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge bg-danger">
+                            Bloqueado
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <div class="d-flex gap-2">
+
+                            <!-- VER -->
+
+                            <button
+                                class="btn btn-sm btn-light">
+
+                                <i class="bi bi-eye-fill"></i>
+
+                            </button>
+
+                            <!-- EDITAR -->
+
+                            <button
+                                class="btn btn-sm btn-light">
+
+                                <i class="bi bi-pencil-fill"></i>
+
+                            </button>
+
+                            <!-- ELIMINAR -->
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('usuario.eliminar_usuario', id=u.id) }}">
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-light"
+                                    onclick="return confirm('¿Eliminar usuario?')">
+
+                                    <i class="bi bi-trash-fill"></i>
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div
+    class="modal fade"
+    id="modalUsuario"
+    tabindex="-1">
+
+    <div class="modal-dialog modal-xl">
+
+        <div class="modal-content">
+
+            <form
+                method="POST"
+                action="{{ url_for('usuario.guardar_usuario') }}">
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+
+                        <i class="bi bi-person-plus-fill"></i>
+                        Registrar Nuevo Usuario
+
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <label>Nombres</label>
+
+                            <input
+                                type="text"
+                                name="nombres"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label>Apellidos</label>
+
+                            <input
+                                type="text"
+                                name="apellidos"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-6">
+
+                            <label>Usuario</label>
+
+                            <input
+                                type="text"
+                                name="usuario"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label>Correo Electrónico</label>
+
+                            <input
+                                type="email"
+                                name="correo"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-3">
+
+                        <div class="col-md-6">
+
+                            <label>Contraseña</label>
+
+                            <input
+                                type="password"
+                                name="password"
+                                class="form-control"
+                                required>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label>Rol</label>
+
+                            <select
+                                name="rol"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+                                    Seleccione un rol
+                                </option>
+
+                                <option value="ADMINISTRADOR">
+                                    Administrador
+                                </option>
+
+                                <option value="RECEPCION">
+                                    Recepción
+                                </option>
+
+                                <option value="PERSONAL">
+                                    Personal
+                                </option>
+
+                                <option value="MENSAJERIA">
+                                    Mensajería
+                                </option>
+
+                                <option value="ARCHIVO">
+                                    Archivo
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-4">
+
+                        <div class="alert alert-info">
+
+                            <i class="bi bi-info-circle-fill"></i>
+
+                            El usuario recibirá acceso al sistema
+                            según el rol asignado.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Cancelar
+
+                    </button>
+
+                    <button class="btn-primary-custom" type="submit">
+
+                        <i class="bi bi-check-circle-fill"></i>
+                        Guardar Usuario
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,235 +1,174 @@
 {% extends 'layouts/base.html' %}
-
 {% block title %}
 Correspondencia Archivada
 {% endblock %}
-
 {% block content %}
-
 <div class="dashboard-header">
-
     <div>
-
-        <h1>Correspondencia Archivada</h1>
-
+        <h1>
+            <i class="bi bi-archive-fill"></i>
+            Documentos Archivados
+        </h1>
         <p>
-            Historial institucional de documentos archivados
+            Historial institucional de correspondencia archivada
         </p>
-
     </div>
-
     <a
-        href="{{ url_for('dashboard.entrada') }}"
+        href="{{ url_for('dashboard.home') }}"
         class="btn btn-primary rounded-pill px-4">
-
         <i class="bi bi-arrow-left"></i>
         Volver
-
     </a>
-
 </div>
 
 <div class="table-container">
-
+    <div class="table-header">
+        <h4>
+            <i class="bi bi-inbox-fill"></i>
+            Correspondencia de Entrada Archivada
+        </h4>
+    </div>
     <div class="table-responsive">
-
-        <table class="table table-hover align-middle">
-
-            <thead class="table-dark">
-
+        <table class="table custom-table align-middle">
+            <thead>
                 <tr>
-
-                    <th>ID</th>
                     <th>Hoja Ruta</th>
+                    <th>CITE</th>
                     <th>Remitente</th>
                     <th>Referencia</th>
-                    <th>Estado</th>
+                    <th>Archivo</th>
                     <th>Fecha Registro</th>
                     <th>Acciones</th>
-
                 </tr>
-
             </thead>
-
             <tbody>
-
-                {% for c in correspondencias %}
-
+                {% for e in entradas %}
                 <tr>
-
-                    <td>{{ c.id }}</td>
-
+                    <td>{{ e.hoja_ruta }}</td>
+                    <td>{{ e.cite or '-' }}</td>
+                    <td>{{ e.remitente }}</td>
+                    <td>{{ e.referencia }}</td>
                     <td>
-
-                        <span class="badge bg-dark">
-                            {{ c.hoja_ruta }}
-                        </span>
-
+                        {% if e.archivo %}
+                        <a
+                            href="{{ url_for('static', filename='uploads/' + e.archivo) }}"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                        </a>
+                        {% else %}
+                        -
+                        {% endif %}
                     </td>
-
-                    <td>{{ c.remitente }}</td>
-
-                    <td>{{ c.referencia }}</td>
-
                     <td>
-
-                        <span class="badge bg-secondary">
-                            {{ c.estado }}
-                        </span>
-
+                        {{ e.fecha_registro.strftime('%d/%m/%Y') }}
                     </td>
-
                     <td>
-
-                        {{ c.fecha_registro.strftime('%d/%m/%Y %H:%M') }}
-
-                    </td>
-
-                    <td>
-
                         <div class="d-flex gap-2">
-
-                            <!-- RESTAURAR -->
-
                             <form
                                 method="POST"
-                                action="{{ url_for('dashboard.restaurar_entrada', id=c.id) }}"
+                                action="{{ url_for('dashboard.restaurar_entrada', id=e.id) }}"
                                 class="form-restaurar">
-
                                 <button
                                     type="submit"
-                                    class="btn btn-success btn-sm rounded-pill px-3">
-
+                                    class="btn btn-success btn-sm">
                                     <i class="bi bi-arrow-counterclockwise"></i>
-
                                 </button>
-
                             </form>
-
-                            <!-- ELIMINAR DEFINITIVO -->
-
                             <form
                                 method="POST"
-                                action="{{ url_for('dashboard.eliminar_definitivo_entrada', id=c.id) }}"
+                                action="{{ url_for('dashboard.eliminar_definitivo_entrada', id=e.id) }}"
                                 class="form-eliminar-definitivo">
-
                                 <button
                                     type="submit"
-                                    class="btn btn-danger btn-sm rounded-pill px-3">
-
+                                    class="btn btn-danger btn-sm">
                                     <i class="bi bi-trash-fill"></i>
-
                                 </button>
-
                             </form>
-
                         </div>
-
                     </td>
-
                 </tr>
-
                 {% endfor %}
-
             </tbody>
-
         </table>
-
     </div>
-
 </div>
 
-<script>
-
-document.querySelectorAll('.form-restaurar').forEach(form => {
-
-    form.addEventListener('submit', function(e) {
-
-        e.preventDefault()
-
-        Swal.fire({
-
-            title: '¿Restaurar correspondencia?',
-
-            text: 'El registro volverá al sistema principal.',
-
-            icon: 'question',
-
-            showCancelButton: true,
-
-            confirmButtonColor: '#198754',
-
-            cancelButtonColor: '#6c757d',
-
-            confirmButtonText: 'Sí, restaurar',
-
-            cancelButtonText: 'Cancelar',
-
-            background: '#1f2937',
-
-            color: '#ffffff',
-
-            borderRadius: '16px'
-
-        }).then((result) => {
-
-            if (result.isConfirmed) {
-
-                form.submit()
-
-            }
-
-        })
-
-    })
-
-})
-
-
-document.querySelectorAll('.form-eliminar-definitivo').forEach(form => {
-
-    form.addEventListener('submit', function(e) {
-
-        e.preventDefault()
-
-        Swal.fire({
-
-            title: '¿Eliminar definitivamente?',
-
-            text: 'Esta acción no se podrá deshacer.',
-
-            icon: 'error',
-
-            showCancelButton: true,
-
-            confirmButtonColor: '#dc3545',
-
-            cancelButtonColor: '#6c757d',
-
-            confirmButtonText: 'Sí, eliminar',
-
-            cancelButtonText: 'Cancelar',
-
-            background: '#1f2937',
-
-            color: '#ffffff',
-
-            borderRadius: '16px'
-
-        }).then((result) => {
-
-            if (result.isConfirmed) {
-
-                form.submit()
-
-            }
-
-        })
-
-    })
-
-})
-
-</script>
+<div class="table-container">
+    <div class="table-header">
+        <h4>
+            <i class="bi bi-send-fill"></i>
+            Correspondencia de Salida Archivada
+        </h4>
+    </div>
+    <div class="table-responsive">
+        <table class="table custom-table align-middle">
+            <thead>
+                <tr>
+                    <th>HR Salida</th>
+                    <th>CITE</th>
+                    <th>Destinatario</th>
+                    <th>Referencia</th>
+                    <th>Respuesta</th>
+                    <th>Fecha Envío</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in salidas %}
+                <tr>
+                    <td>{{ s.hoja_ruta }}</td>
+                    <td>{{ s.cite or '-' }}</td>
+                    <td>{{ s.destinatario }}</td>
+                    <td>{{ s.referencia }}</td>
+                    <td>
+                        {% if s.archivo %}
+                        <a
+                            href="{{ url_for('static', filename='uploads/' + s.archivo) }}"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                        </a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if s.fecha_envio %}
+                            {{ s.fecha_envio.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <form
+                                method="POST"
+                                action="{{ url_for('dashboard.restaurar_salida', id=s.id) }}"
+                                class="form-restaurar">
+                                <button
+                                    type="submit"
+                                    class="btn btn-success btn-sm">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+                            </form>
+                            <form
+                                method="POST"
+                                action="{{ url_for('dashboard.eliminar_definitivo_salida', id=s.id) }}"
+                                class="form-eliminar-definitivo">
+                                <button
+                                    type="submit"
+                                    class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
 {% endblock %}

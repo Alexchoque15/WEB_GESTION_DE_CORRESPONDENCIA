@@ -1,0 +1,84 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<div class="card shadow">
+
+    <div class="card-header">
+
+        Nuevo Usuario
+
+    </div>
+
+    <div class="card-body">
+
+        <form method="POST">
+
+            <input type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}">
+
+            <input class="form-control mb-3"
+                    name="nombres"
+                    placeholder="Nombres">
+
+            <input class="form-control mb-3"
+                    name="apellidos"
+                    placeholder="Apellidos">
+
+            <input class="form-control mb-3"
+                    name="usuario"
+                    placeholder="Usuario">
+
+            <input class="form-control mb-3"
+                    name="correo"
+                    placeholder="Correo">
+
+            <select class="form-select mb-3"
+                    name="rol">
+
+                <option value="RECEPCION">
+                    Recepción
+                </option>
+
+                <option value="PERSONAL">
+                    Personal
+                </option>
+
+                <option value="MENSAJERIA">
+                    Mensajería
+                </option>
+
+                <option value="ARCHIVO">
+                    Archivo
+                </option>
+
+                <option value="ADMINISTRADOR">
+                    Administrador
+                </option>
+
+            </select>
+
+            <input type="number"
+                    name="rol_id"
+                    class="form-control mb-3"
+                    placeholder="ID Rol">
+
+            <input type="password"
+                    name="password"
+                    class="form-control mb-3"
+                    placeholder="Contraseña">
+
+            <button class="btn btn-success">
+
+                Guardar
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

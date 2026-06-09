@@ -17,7 +17,7 @@ class Rol(db.Model):
 
     usuarios = db.relationship(
         'Usuario',
-        backref='rol',
+        backref='rol_rel',
         lazy=True
     )
 

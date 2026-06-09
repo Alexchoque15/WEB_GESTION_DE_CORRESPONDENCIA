@@ -1,15 +1,37 @@
 from datetime import datetime
-
 from flask_login import UserMixin
-
 from app import db
 
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
 
 class Usuario(UserMixin, db.Model):
 
     __tablename__ = 'usuarios'
 
     id = db.Column(db.Integer, primary_key=True)
+
+    intentos_fallidos = db.Column(
+        db.Integer,
+        default=0
+    )
+
+    bloqueado_hasta = db.Column(
+        db.DateTime,
+        nullable=True
+    )
+
+    ultimo_login = db.Column(
+        db.DateTime,
+        nullable=True
+    )
+
+    ultima_ip = db.Column(
+        db.String(50),
+        nullable=True
+    )
 
     nombres = db.Column(
         db.String(150),
@@ -36,6 +58,12 @@ class Usuario(UserMixin, db.Model):
     password = db.Column(
         db.String(255),
         nullable=False
+    )
+
+    rol = db.Column(
+        db.String(30),
+        nullable=False,
+        default='PERSONAL'
     )
 
     telefono = db.Column(db.String(30))
@@ -75,6 +103,15 @@ class Usuario(UserMixin, db.Model):
         backref='usuario_seguimiento',
         lazy=True
     )
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(
+            self.password,
+            password
+        )
 
     def __repr__(self):
         return f'<Usuario {self.usuario}>'

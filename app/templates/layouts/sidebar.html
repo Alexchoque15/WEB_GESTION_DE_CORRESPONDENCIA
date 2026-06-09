@@ -28,21 +28,48 @@
 
         </a>
 
-
+        {% if current_user.rol in ['ADMINISTRADOR','RECEPCION'] %}
         <a href="/entrada" class="menu-item">
 
             <i class="bi bi-inbox-fill"></i>
             <span>Correspondencia Entrada</span>
 
         </a>
+        {% endif %}
 
-
+        {% if current_user.rol in ['ADMINISTRADOR','PERSONAL'] %}
         <a href="/salida" class="menu-item">
 
             <i class="bi bi-send-fill"></i>
             <span>Correspondencia Salida</span>
 
         </a>
+        {% endif %}
+
+        {% if current_user.rol in ['ADMINISTRADOR','ARCHIVO'] %}
+
+        <a href="{{ url_for('dashboard.archivados') }}"
+            class="menu-item">
+
+            <i class="bi bi-archive-fill"></i>
+            <span>Documentos Archivados</span>
+
+        </a>
+
+        {% endif %}
+
+        {% if current_user.rol in ['ADMINISTRADOR','MENSAJERIA'] %}
+
+        <a href="#" class="menu-item">
+
+            <i class="bi bi-truck"></i>
+            <span>Mensajeria</span>
+
+        </a>
+
+        {% endif %}
+
+        {% if current_user.rol == 'ADMINISTRADOR' %}
 
 
         <a href="#" class="menu-item">
@@ -61,7 +88,7 @@
         </a>
 
 
-        <a href="#" class="menu-item">
+        <a href="{{ url_for('usuario.listar_usuarios') }}" class="menu-item">
 
             <i class="bi bi-people-fill"></i>
             <span>Usuarios</span>
@@ -75,31 +102,7 @@
             <span>Configuración</span>
 
         </a>
-
-    </div>
-
-
-    <div class="sidebar-footer">
-
-        <div class="user-card">
-
-            <div class="user-avatar">
-                JL
-            </div>
-
-            <div class="user-info">
-
-                <h5>
-                    Administrador
-                </h5>
-
-                <span>
-                    Sistema Activo
-                </span>
-
-            </div>
-
-        </div>
+        {% endif %}
 
     </div>
 

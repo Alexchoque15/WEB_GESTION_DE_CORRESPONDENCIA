@@ -1,0 +1,268 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}
+Perfil de Usuario
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between mb-4">
+
+    <a href="{{ url_for('dashboard.home') }}"
+        class="btn btn-secondary">
+
+        <i class="bi bi-arrow-left"></i>
+        Volver al Dashboard
+
+    </a>
+
+</div>
+
+<div class="dashboard-hero mb-4">
+
+    <div>
+
+        <h1>
+            {{ usuario.nombres }}
+            {{ usuario.apellidos }}
+        </h1>
+
+        <p>
+            Perfil del Sistema de Gestión de Correspondencia
+        </p>
+
+    </div>
+
+</div>
+
+<div class="row">
+
+    <!-- PERFIL -->
+    <div class="col-md-4">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body text-center">
+
+                <div
+                    class="avatar mx-auto mb-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                    style="width:90px;height:90px;font-size:30px;">
+
+                    {{ usuario.nombres[0] }}
+                    {{ usuario.apellidos[0] }}
+
+                </div>
+
+                <h4>
+                    {{ usuario.nombres }}
+                    {{ usuario.apellidos }}
+                </h4>
+
+                <span class="badge bg-success">
+                    Activo
+                </span>
+
+                <hr>
+
+                <p>
+                    <strong>Usuario:</strong><br>
+                    {{ usuario.usuario }}
+                </p>
+
+                <p>
+                    <strong>Correo:</strong><br>
+                    {{ usuario.correo }}
+                </p>
+
+                <p>
+                    <strong>Teléfono:</strong><br>
+                    {{ usuario.telefono or 'No registrado' }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- INFORMACIÓN -->
+    <div class="col-md-8">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header">
+
+                <i class="bi bi-person-badge"></i>
+                Información General
+
+            </div>
+
+            <div class="card-body">
+
+                <p>
+                    <strong>Rol:</strong>
+                    {{ usuario.rol }}
+                </p>
+
+                <p>
+                    <strong>Cargo:</strong>
+                    {{ usuario.cargo or 'No definido' }}
+                </p>
+
+                <p>
+                    <strong>Último acceso:</strong>
+                    {{ usuario.ultimo_login or 'Sin registros' }}
+                </p>
+
+                <p>
+                    <strong>Última IP:</strong>
+                    {{ usuario.ultima_ip or 'Sin registros' }}
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- DESCRIPCIÓN DEL ROL -->
+        <div class="card shadow-sm border-0 mt-3">
+
+            <div class="card-header">
+
+                <i class="bi bi-shield-check"></i>
+                Funciones del Cargo
+
+            </div>
+
+            <div class="card-body">
+
+                {% if usuario.rol == 'RECEPCION' %}
+
+                <h5>
+                    Asistente de Gerencia / Recepción
+                </h5>
+
+                <p>
+                    Responsable del registro y control de la
+                    correspondencia que ingresa a la institución.
+                </p>
+
+                <ul>
+                    <li>Registrar documentos de entrada.</li>
+                    <li>Generar hojas de ruta.</li>
+                    <li>Adjuntar documentación.</li>
+                    <li>Asignar tareas iniciales.</li>
+                </ul>
+
+                {% elif usuario.rol == 'PERSONAL' %}
+
+                <h5>
+                    Personal Común
+                </h5>
+
+                <p>
+                    Responsable de la gestión de documentos
+                    de salida.
+                </p>
+
+                <ul>
+                    <li>Responder documentos recibidos.</li>
+                    <li>Crear trámites de salida.</li>
+                    <li>Generar códigos CITE.</li>
+                    <li>Programar entregas.</li>
+                </ul>
+
+                {% elif usuario.rol == 'MENSAJERIA' %}
+
+                <h5>
+                    Mensajería
+                </h5>
+
+                <p>
+                    Responsable de la distribución física y
+                    digital de documentos.
+                </p>
+
+                <ul>
+                    <li>Gestionar entregas.</li>
+                    <li>Confirmar recepción.</li>
+                    <li>Adjuntar comprobantes.</li>
+                    <li>Cerrar tareas de envío.</li>
+                </ul>
+
+                {% elif usuario.rol == 'ARCHIVO' %}
+
+                <h5>
+                    Asistente General
+                </h5>
+
+                <p>
+                    Responsable del archivo físico y digital
+                    institucional.
+                </p>
+
+                <ul>
+                    <li>Archivar documentación.</li>
+                    <li>Gestionar trámites finalizados.</li>
+                    <li>Control documental.</li>
+                    <li>Custodia de expedientes.</li>
+                </ul>
+
+                {% elif usuario.rol == 'ADMINISTRADOR' %}
+
+                <h5>
+                    Administrador General
+                </h5>
+
+                <p>
+                    Responsable del monitoreo y administración
+                    completa del sistema.
+                </p>
+
+                <ul>
+                    <li>Administración de usuarios.</li>
+                    <li>Asignación de roles.</li>
+                    <li>Reportes institucionales.</li>
+                    <li>Monitoreo de auditorías.</li>
+                    <li>Reseteo y mantenimiento del sistema.</li>
+                </ul>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% if usuario.rol == 'ADMINISTRADOR' %}
+
+<div class="card border-danger mt-4">
+
+    <div class="card-header bg-danger text-white">
+
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        Zona Administrativa
+
+    </div>
+
+    <div class="card-body">
+
+        <button
+            class="btn btn-danger"
+            data-bs-toggle="modal"
+            data-bs-target="#modalReset">
+
+            <i class="bi bi-trash-fill"></i>
+            Resetear Base de Datos
+
+        </button>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

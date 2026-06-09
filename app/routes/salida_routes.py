@@ -1,3 +1,6 @@
+import uuid
+import os
+
 from flask import Blueprint
 from flask import render_template
 from flask import request
@@ -7,8 +10,12 @@ from flask import flash
 
 from app import db
 
-from app.models.correspondencia_salida import CorrespondenciaSalida
+from app.utils.roles import rol_requerido
 
+from app.models.correspondencia_salida import CorrespondenciaSalida
+from app.utils.file_security import allowed_file
+
+from flask_login import login_required
 
 salida_bp = Blueprint(
     'salida',
@@ -17,6 +24,11 @@ salida_bp = Blueprint(
 
 
 @salida_bp.route('/salida')
+@login_required
+@rol_requerido(
+    'ADMINISTRADOR',
+    'PERSONAL'
+)
 def salida():
 
     correspondencias = CorrespondenciaSalida.query.order_by(
@@ -30,6 +42,11 @@ def salida():
 
 
 @salida_bp.route('/salida/guardar', methods=['POST'])
+@login_required
+@rol_requerido(
+    'ADMINISTRADOR',
+    'PERSONAL'
+)
 def guardar_salida():
 
     try:
@@ -65,6 +82,25 @@ def guardar_salida():
             usuario_id=1
 
         )
+
+        archivo = request.files.get(
+            'documento'
+        )
+
+        if archivo:
+
+            if not allowed_file(
+                archivo.filename
+            ):
+
+                flash(
+                    'Tipo de archivo no permitido',
+                    'danger'
+                )
+
+                return redirect(
+                    request.url
+                )
 
         db.session.add(nueva)
 
